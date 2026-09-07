@@ -131,14 +131,14 @@ export const RegionExplorerView: React.FC<RegionExplorerViewProps> = ({
                 <div className="absolute bottom-3 left-4 right-4 flex items-end justify-between">
                   <div>
                     <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--gh-accent)]">
-                      Provinsi Terpilih
+                      {t('region.selected')}
                     </span>
                     <h3 className="text-xl sm:text-2xl font-bold text-[var(--gh-text)] leading-tight">
                       {selectedProvince.provinceName}
                     </h3>
                   </div>
                   <div className="text-right">
-                    <span className="text-[10px] uppercase text-[var(--gh-text-muted)] block">IRBI</span>
+                    <span className="text-[10px] uppercase text-[var(--gh-text-muted)] block">{t('region.irbi')}</span>
                     <span className="text-2xl sm:text-3xl font-black font-mono leading-none text-[var(--gh-accent)]">
                       {selectedProvince.irbiScore}
                     </span>
@@ -149,7 +149,7 @@ export const RegionExplorerView: React.FC<RegionExplorerViewProps> = ({
               {/* Stats row */}
               <div className="px-4 py-3 border-t border-[var(--gh-border)] flex items-center gap-4 text-xs">
                 <div>
-                  <span className="text-[var(--gh-text-muted)]">Tingkat Risiko: </span>
+                  <span className="text-[var(--gh-text-muted)]">{t('region.risk_level')}</span>
                   <span className={`font-semibold ${selectedProvince.irbiClass === 'Tinggi' ? 'text-red-500' : 'text-yellow-500'}`}>
                     {selectedProvince.irbiClass}
                   </span>
@@ -161,7 +161,7 @@ export const RegionExplorerView: React.FC<RegionExplorerViewProps> = ({
                 </div>
                 <div className="h-3 w-px bg-[var(--gh-border)]" />
                 <div>
-                  <span className="text-[var(--gh-text-muted)]">Sumber: </span>
+                  <span className="text-[var(--gh-text-muted)]">{t('region.source')}</span>
                   <span className="text-[var(--gh-text)]">{selectedProvince.source}</span>
                 </div>
               </div>
@@ -171,7 +171,7 @@ export const RegionExplorerView: React.FC<RegionExplorerViewProps> = ({
             {availableDistricts.length > 0 && (
               <div className="rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface)] p-4">
                 <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--gh-text-muted)] block mb-2">
-                  Kabupaten / Kota
+                  {t('region.district')}
                 </span>
                 <div className="flex flex-wrap gap-1.5">
                   <button
@@ -182,7 +182,7 @@ export const RegionExplorerView: React.FC<RegionExplorerViewProps> = ({
                         : 'border-[var(--gh-border)] text-[var(--gh-text-muted)] hover:text-[var(--gh-text)]'
                     }`}
                   >
-                    Semua
+                    {t('region.all')}
                   </button>
                   {availableDistricts.map((d) => (
                     <button
@@ -206,7 +206,7 @@ export const RegionExplorerView: React.FC<RegionExplorerViewProps> = ({
               <div className="rounded-xl border border-[var(--gh-accent)]/20 bg-[var(--gh-accent)]/5 p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="text-[10px] font-semibold uppercase text-[var(--gh-accent)]">Tingkat Kab/Kota</span>
+                    <span className="text-[10px] font-semibold uppercase text-[var(--gh-accent)]">{t('region.district_level')}</span>
                     <h4 className="text-base font-bold text-[var(--gh-text)]">{selectedDistrict.districtName}</h4>
                   </div>
                   <div className="text-right">
@@ -230,7 +230,7 @@ export const RegionExplorerView: React.FC<RegionExplorerViewProps> = ({
                     key={k}
                     className="flex items-center justify-between rounded-lg bg-[var(--gh-surface-raised)] px-3 py-2 border border-[var(--gh-border)]"
                   >
-                    <span className="text-xs text-[var(--gh-text-muted)]">{HAZARD_NAMES[k] || k}</span>
+                    <span className="text-xs text-[var(--gh-text-muted)]">{t(`risk.hazard_${k}`) !== `risk.hazard_${k}` ? t(`risk.hazard_${k}`) : (HAZARD_NAMES[k] || k)}</span>
                     <span
                       className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${
                         v === 'Tinggi'
@@ -252,35 +252,35 @@ export const RegionExplorerView: React.FC<RegionExplorerViewProps> = ({
           <div className="lg:col-span-5 rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface)] p-5">
             <div className="flex items-center gap-2 text-[var(--gh-text)] font-semibold text-xs uppercase tracking-wider border-b border-[var(--gh-border)] pb-3 mb-4">
               <BookOpen className="h-4 w-4 text-[var(--gh-accent)]" strokeWidth={1.75} />
-              Rekomendasi Kesiapsiagaan
+              {t('region.reco_title')}
             </div>
 
             <div className="space-y-3 text-xs text-[var(--gh-text)]">
               <div className="rounded-lg bg-[var(--gh-surface-raised)] p-3 border border-[var(--gh-border)]">
-                <span className="font-semibold block mb-1">1. Jalur & Titik Evakuasi</span>
+                <span className="font-semibold block mb-1">{t('region.reco_1_title')}</span>
                 <p className="text-[var(--gh-text-muted)] leading-relaxed text-[11px]">
-                  Kenali lokasi Tempat Evakuasi Sementara (TES) dan Tempat Evakuasi Akhir (TEA) resmi di sekitar pemukiman Anda.
+                  {t('region.reco_1_desc')} (TES) dan Tempat Evakuasi Akhir (TEA) resmi di sekitar pemukiman Anda.
                 </p>
               </div>
 
               <div className="rounded-lg bg-[var(--gh-surface-raised)] p-3 border border-[var(--gh-border)]">
-                <span className="font-semibold block mb-1">2. Tas Siaga Bencana</span>
+                <span className="font-semibold block mb-1">{t('region.reco_2_title')}</span>
                 <p className="text-[var(--gh-text-muted)] leading-relaxed text-[11px]">
-                  Dokumen berharga, obat-obatan, senter, peluit, air bersih, makanan tahan lama &mdash; kebutuhan mandiri 3 hari.
+                  {t('region.reco_2_desc')}, peluit, air bersih, makanan tahan lama &mdash; kebutuhan mandiri 3 hari.
                 </p>
               </div>
 
               <div className="rounded-lg bg-[var(--gh-surface-raised)] p-3 border border-[var(--gh-border)]">
-                <span className="font-semibold block mb-1">3. Kontak Darurat BPBD</span>
+                <span className="font-semibold block mb-1">{t('region.reco_3_title')}</span>
                 <p className="text-[var(--gh-text-muted)] leading-relaxed text-[11px]">
-                  Simpan nomor Call Center 112 atau Posko BPBD {selectedProvince.provinceName} di ponsel Anda.
+                  {t('region.reco_3_desc', { prov: selectedProvince.provinceName })} {selectedProvince.provinceName} di ponsel Anda.
                 </p>
               </div>
 
               <div className="rounded-lg bg-[var(--gh-surface-raised)] p-3 border border-[var(--gh-border)]">
-                <span className="font-semibold block mb-1">4. Verifikasi Informasi</span>
+                <span className="font-semibold block mb-1">{t('region.reco_4_title')}</span>
                 <p className="text-[var(--gh-text-muted)] leading-relaxed text-[11px]">
-                  Ikuti informasi resmi dari BMKG, portal InaRISK BNPB, dan instansi berwenang.
+                  {t('region.reco_4_desc')}, portal InaRISK BNPB, dan instansi berwenang.
                 </p>
               </div>
             </div>

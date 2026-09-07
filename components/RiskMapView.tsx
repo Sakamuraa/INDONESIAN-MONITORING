@@ -109,16 +109,16 @@ export const RiskMapView: React.FC<RiskMapViewProps> = ({
         {/* Pillars: single line chips, not 3 equal cards */}
         <div className="mt-4 flex flex-wrap gap-2">
           {[
-            { label: 'Bahaya (H)', color: 'text-orange-500', desc: 'Frekuensi & intensitas fenomena alam' },
-            { label: 'Kerentanan (V)', color: 'text-yellow-500', desc: 'Kondisi fisik, sosial, ekonomi' },
-            { label: 'Kapasitas (C)', color: 'text-emerald-500', desc: 'Kesiapsiagaan & infrastruktur' },
+            { labelKey: 'risk.pillar_hazard', descKey: 'risk.pillar_hazard_desc', color: 'text-orange-500' },
+            { labelKey: 'risk.pillar_vuln', descKey: 'risk.pillar_vuln_desc', color: 'text-yellow-500' },
+            { labelKey: 'risk.pillar_capacity', descKey: 'risk.pillar_capacity_desc', color: 'text-emerald-500' },
           ].map((pillar) => (
             <div
-              key={pillar.label}
+              key={pillar.labelKey}
               className="rounded-lg border border-[var(--gh-border)] bg-[var(--gh-surface-raised)] px-3 py-2 text-xs"
             >
-              <span className={`font-semibold ${pillar.color}`}>{pillar.label}</span>
-              <span className="text-[var(--gh-text-muted)] ml-2 text-[11px]">{pillar.desc}</span>
+              <span className={`font-semibold ${pillar.color}`}>{t(pillar.labelKey)}</span>
+              <span className="text-[var(--gh-text-muted)] ml-2 text-[11px]">{t(pillar.descKey)}</span>
             </div>
           ))}
         </div>
@@ -231,7 +231,7 @@ export const RiskMapView: React.FC<RiskMapViewProps> = ({
                   </h3>
                 </div>
                 <div className="text-right flex-shrink-0 ml-3">
-                  <span className="text-[10px] text-[var(--gh-text-muted)] block uppercase">Skor IRBI</span>
+                  <span className="text-[10px] text-[var(--gh-text-muted)] block uppercase">{t('risk.irbi_score')}</span>
                   <span className="text-2xl sm:text-3xl font-black text-[var(--gh-accent)] font-mono leading-none">
                     {activeProvince.irbiScore}
                   </span>
@@ -250,7 +250,7 @@ export const RiskMapView: React.FC<RiskMapViewProps> = ({
                       className="flex items-center justify-between rounded-lg bg-[var(--gh-surface-raised)] px-3 py-2 border border-[var(--gh-border)]"
                     >
                       <span className="text-xs text-[var(--gh-text-muted)]">
-                        {HAZARD_NAMES[hazardKey] || hazardKey}
+                        {t(`risk.hazard_${hazardKey}`) !== `risk.hazard_${hazardKey}` ? t(`risk.hazard_${hazardKey}`) : (HAZARD_NAMES[hazardKey] || hazardKey)}
                       </span>
                       <span
                         className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${
@@ -261,7 +261,7 @@ export const RiskMapView: React.FC<RiskMapViewProps> = ({
                             : 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
                         }`}
                       >
-                        {riskLevel}
+                        {riskLevel === 'Tinggi' ? t('risk.level_high') : riskLevel === 'Sedang' ? t('risk.level_medium') : t('risk.level_low')}
                       </span>
                     </div>
                   ))}
@@ -272,7 +272,7 @@ export const RiskMapView: React.FC<RiskMapViewProps> = ({
               {activeProvince.hazardScores && activeProvince.hazardScores.length > 0 && (
                 <div className="pt-3 border-t border-[var(--gh-border)]">
                   <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--gh-text-muted)] block mb-2">
-                    Indeks Komparatif (Skala 0&ndash;200)
+                    {t('risk.comparative')}
                   </span>
                   <div className="space-y-2">
                     {activeProvince.hazardScores.map((h, i) => {
@@ -281,7 +281,7 @@ export const RiskMapView: React.FC<RiskMapViewProps> = ({
                       return (
                         <div key={i} className="space-y-1">
                           <div className="flex justify-between text-[11px]">
-                            <span className="text-[var(--gh-text-muted)]">{h.hazardNameId}</span>
+                            <span className="text-[var(--gh-text-muted)]">{(() => { const rev: Record<string,string> = { 'Gempa Bumi':'gempa','Banjir':'banjir','Tanah Longsor':'longsor','Tsunami':'tsunami','Karhutla':'karhutla','Gunung Api':'gunungapi','Kekeringan':'kekeringan','Likuefaksi':'likuefaksi' }; const k = rev[h.hazardNameId] || h.hazardNameId; const tk = `risk.hazard_${k}`; const tr = t(tk); return tr !== tk ? tr : h.hazardNameId; })()}</span>
                             <span className="font-mono text-[var(--gh-text)] font-medium">{score.toFixed(1)}</span>
                           </div>
                           <div className="h-1.5 rounded-full bg-[var(--gh-surface-raised)] border border-[var(--gh-border)] overflow-hidden">

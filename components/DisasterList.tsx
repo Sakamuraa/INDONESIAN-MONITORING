@@ -41,6 +41,8 @@ type ListItem = {
   lng: number;
   potential?: string;
   source: string;
+  occurredAtRaw?: string;
+  jamRaw?: string;
   raw: EarthquakeDetail | VolcanoDetail;
 };
 
@@ -52,6 +54,17 @@ function magTone(m?: number) {
   return 'bg-amber-500/15 text-amber-500 border-amber-500/30';
 }
 
+function formatListTime(occurredAtRaw: string | undefined, jamRaw: string | undefined, lang: string, fallback: string) {
+  if (jamRaw) return `${jamRaw} WIB`;
+  if (!occurredAtRaw) return fallback;
+  try {
+    const d = new Date(occurredAtRaw);
+    if (isNaN(d.getTime())) return occurredAtRaw;
+    const locale = lang === 'en' ? 'en-GB' : 'id-ID';
+    return d.toLocaleString(locale, { timeZone: 'Asia/Jakarta', year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }) + ' WIB';
+  } catch { return occurredAtRaw; }
+}
+
 export const DisasterList: React.FC<DisasterListProps> = ({
   earthquakes,
   volcanoes,
@@ -59,7 +72,7 @@ export const DisasterList: React.FC<DisasterListProps> = ({
   onFocusMap,
   onSelectDisaster,
 }) => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const [filterType, setFilterType] = useState<FilterType>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [minMagnitude, setMinMagnitude] = useState<number>(0);
@@ -85,8 +98,10 @@ export const DisasterList: React.FC<DisasterListProps> = ({
         id: eq.id,
         category: 'earthquake',
         title: eq.title,
-        location: eq.location || 'Wilayah Indonesia',
+        location: eq.location || t('list.region_fallback'),
         time: `${eq.occurredAt || ''} (${eq.jam || ''} WIB)`,
+        occurredAtRaw: eq.occurredAt,
+        jamRaw: eq.jam,
         magnitude: eq.magnitude,
         depth: eq.depth,
         felt: eq.felt,
@@ -280,8 +295,8 @@ export const DisasterList: React.FC<DisasterListProps> = ({
           {visibleFeatured.length > 0 && (
             <section>
               <div className="mb-2.5 flex items-center justify-between">
-                <h3 className="text-xs font-semibold text-[var(--gh-text)]">Peristiwa Utama</h3>
-                <span className="text-[11px] text-[var(--gh-text-subtle)]">{visibleFeatured.length} signifikan</span>
+                <h3 className="text-xs font-semibold text-[var(--gh-text)]">{t('list.featured')}</h3>
+                <span className="text-[11px] text-[var(--gh-text-subtle)]">{t('list.significant_count', { n: visibleFeatured.length })}</span>
               </div>
               <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
                 {visibleFeatured.map((item) => (
@@ -303,7 +318,7 @@ export const DisasterList: React.FC<DisasterListProps> = ({
                         <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-[var(--gh-text-muted)]">
                           <span className="inline-flex items-center gap-1">
                             <Clock className="h-3 w-3 text-[var(--gh-text-subtle)]" strokeWidth={1.75} />
-                            {item.time}
+                            {item.category === 'earthquake' && (item.occurredAtRaw || item.jamRaw) ? formatListTime(item.occurredAtRaw, item.jamRaw, lang, item.time) : item.time}
                           </span>
                           {item.depth !== undefined && (
                             <span className="inline-flex items-center gap-1">
@@ -318,7 +333,7 @@ export const DisasterList: React.FC<DisasterListProps> = ({
                         </div>
                         {item.felt && (
                           <p className="mt-2 rounded-lg border border-[var(--gh-border)] bg-[var(--gh-bg)] px-2 py-1 text-xs font-mono text-amber-600">
-                            {t('list.felt', { v: item.felt })}
+                            {item.felt === 'Data tidak tersedia' || item.felt.toLowerCase().includes('tidak tersedia') ? t('list.no_felt') : t('list.felt', { v: item.felt })}
                           </p>
                         )}
                       </div>
@@ -353,10 +368,10 @@ export const DisasterList: React.FC<DisasterListProps> = ({
             <section>
               <div className="mb-2.5 flex items-center justify-between">
                 <h3 className="text-xs font-semibold text-[var(--gh-text)]">
-                  {visibleFeatured.length ? 'Peristiwa Lainnya' : 'Peristiwa Terpantau'}
+                  {visibleFeatured.length ? t('list.others') : t('list.monitored')}
                 </h3>
                 <span className="text-[11px] text-[var(--gh-text-subtle)]">
-                  {filteredItems.length} total{!expanded && hasMore ? ` · menampilkan ${totalVisible}` : ''}
+                  {t('list.total_showing', { total: filteredItems.length, visible: totalVisible })}{!expanded && hasMore ? '' : ''}
                 </span>
               </div>
               <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
@@ -398,11 +413,11 @@ export const DisasterList: React.FC<DisasterListProps> = ({
                           )}
                         </div>
                         <p className="mt-0.5 truncate text-[11px] text-[var(--gh-text-muted)]">
-                          {item.location} · {item.time}
+                          {item.location} · {item.category === 'earthquake' && (item.occurredAtRaw || item.jamRaw) ? formatListTime(item.occurredAtRaw, item.jamRaw, lang, item.time) : item.time}
                           {item.depth !== undefined ? ` · ${t('list.depth', { n: item.depth })}` : ''}
                         </p>
                         {item.felt && (
-                          <p className="mt-1 truncate text-[11px] font-mono text-amber-600">{t('list.felt', { v: item.felt })}</p>
+                          <p className="mt-1 truncate text-[11px] font-mono text-amber-600">{item.felt === 'Data tidak tersedia' || item.felt.toLowerCase().includes('tidak tersedia') ? t('list.no_felt') : t('list.felt', { v: item.felt })}</p>
                         )}
                       </div>
                     </div>
