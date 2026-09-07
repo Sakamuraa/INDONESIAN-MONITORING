@@ -234,19 +234,19 @@ export default function HomePage() {
               onOpenRiskTab={() => setActiveTab('risk')}
             />
 
-            {/* Volcano Quick Banner */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface)] p-4 shadow-sm transition-colors duration-150">
+            {/* Volcano Quick Banner — calm, no dot spam */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface)] p-4 sm:p-5 shadow-sm transition-colors duration-150">
               <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-md bg-orange-500/10 text-orange-500 border border-orange-500/20 shrink-0">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-orange-500/10 text-orange-500 border border-orange-500/20 shrink-0">
                   <Flame className="h-4 w-4" strokeWidth={1.75} />
                 </div>
                 <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold text-[var(--gh-text)] uppercase tracking-wider">
-                      Volcano Monitor Indonesia (PVMBG / MAGMA)
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-sm font-semibold text-[var(--gh-text)] tracking-tight">
+                      Volcano Monitor
                     </span>
-                    <span className="text-[10px] bg-orange-500/10 text-orange-500 border border-orange-500/20 px-1.5 py-0.5 rounded font-medium">
-                      AKTIF
+                    <span className="text-[11px] bg-[var(--gh-surface-raised)] text-[var(--gh-text-muted)] border border-[var(--gh-border)] px-2 py-0.5 rounded font-medium">
+                      PVMBG / MAGMA
                     </span>
                   </div>
                   <p className="text-xs text-[var(--gh-text-muted)]">

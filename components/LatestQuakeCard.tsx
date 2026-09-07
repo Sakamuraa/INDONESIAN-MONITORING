@@ -24,6 +24,30 @@ export const LatestQuakeCard: React.FC<LatestQuakeCardProps> = ({
 
   const isSignificant = (quake.magnitude || 0) >= 5.0;
 
+  // ponytail: format WIB correctly (Asia/Jakarta) — upgrade: use date-fns if locale complexity grows
+  const formatWIB = (iso?: string, jam?: string) => {
+    if (jam) return jam;
+    if (!iso) return '-';
+    try {
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return iso;
+      return d.toLocaleString('id-ID', {
+        timeZone: 'Asia/Jakarta',
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+      }) + ' WIB';
+    } catch {
+      return iso;
+    }
+  };
+  const hasCoords = Boolean((quake.lintang && quake.bujur) || (quake.latitude != null && quake.longitude != null));
+  const coordLabel = quake.lintang && quake.bujur ? `${quake.lintang}, ${quake.bujur}` : quake.latitude != null ? `${quake.latitude.toFixed(4)}, ${quake.longitude?.toFixed(4)}` : '';
+
   return (
     <div
       id="latest-earthquake-showcase"
@@ -37,7 +61,7 @@ export const LatestQuakeCard: React.FC<LatestQuakeCardProps> = ({
             <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-rose-500"></span>
           </span>
           <span className="text-xs font-semibold uppercase tracking-wider text-rose-500">
-            Guncangan Gempa Terkini
+            Gempa Terkini
           </span>
           <span className="rounded-md bg-[var(--gh-surface-raised)] border border-[var(--gh-border)] px-2 py-0.5 text-[11px] font-mono text-[var(--gh-text-muted)]">
             BMKG Indonesia
@@ -75,19 +99,21 @@ export const LatestQuakeCard: React.FC<LatestQuakeCardProps> = ({
               <div className="flex items-center gap-2 text-[var(--gh-text-muted)]">
                 <Clock className="h-3.5 w-3.5 text-[var(--gh-text-subtle)] shrink-0" strokeWidth={1.75} />
                 <span>
-                  {quake.occurredAt} <span className="text-[var(--gh-text-subtle)]">({quake.jam} WIB)</span>
+                  {formatWIB(quake.occurredAt, quake.jam)}
                 </span>
               </div>
               <div className="flex items-center gap-2 text-[var(--gh-text-muted)]">
                 <Gauge className="h-3.5 w-3.5 text-[var(--gh-text-subtle)] shrink-0" strokeWidth={1.75} />
                 <span>Kedalaman: <strong className="text-[var(--gh-text)] font-mono">{quake.depth} km</strong></span>
               </div>
-              <div className="flex items-center gap-2 text-[var(--gh-text-muted)]">
-                <MapPin className="h-3.5 w-3.5 text-[var(--gh-text-subtle)] shrink-0" strokeWidth={1.75} />
-                <span>
-                  Koordinat: <span className="font-mono text-[var(--gh-text)]">{quake.lintang}, {quake.bujur}</span>
-                </span>
-              </div>
+              {hasCoords && (
+                <div className="flex items-center gap-2 text-[var(--gh-text-muted)]">
+                  <MapPin className="h-3.5 w-3.5 text-[var(--gh-text-subtle)] shrink-0" strokeWidth={1.75} />
+                  <span>
+                    Koordinat: <span className="font-mono text-[var(--gh-text)]">{coordLabel}</span>
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -95,7 +121,7 @@ export const LatestQuakeCard: React.FC<LatestQuakeCardProps> = ({
             <button
               id="btn-view-latest-quake-on-map"
               onClick={() => onViewOnMap(quake.latitude || 0, quake.longitude || 0, quake.location || '')}
-              className="flex items-center gap-1.5 rounded-lg bg-[#238636] hover:bg-[#2ea043] px-3.5 py-1.5 text-xs font-semibold text-white border border-[#2ea043]/30 transition shadow-xs active:scale-95"
+              className="flex items-center gap-1.5 rounded-lg bg-[var(--gh-accent)] hover:opacity-90 px-3.5 py-1.5 text-xs font-semibold text-white border border-[var(--gh-accent)]/30 transition shadow-xs active:scale-95"
             >
               <Eye className="h-3.5 w-3.5" strokeWidth={1.75} />
               Lihat di Peta

@@ -40,12 +40,12 @@ export const StatsOverview: React.FC<StatsOverviewProps> = ({
   const highRiskProvinces = provinces.filter((p) => p.irbiClass === 'Tinggi');
 
   return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-      {/* Stat Card 1: Gempa Terkini */}
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-12">
+      {/* Featured: Gempa Terkini — wider, primary */}
       <div
         id="stat-card-latest-quake"
         onClick={onOpenQuakeTab}
-        className="group cursor-pointer rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface)] p-4 transition-all hover:border-[var(--gh-border-active)] hover:bg-[var(--gh-surface-raised)] shadow-xs"
+        className="sm:col-span-6 lg:col-span-5 group cursor-pointer rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface)] p-5 transition-all hover:border-[var(--gh-border-active)] hover:bg-[var(--gh-surface-raised)] shadow-xs"
       >
         <div className="flex items-center justify-between">
           <span className="text-xs font-medium text-[var(--gh-text-muted)]">
@@ -55,8 +55,8 @@ export const StatsOverview: React.FC<StatsOverviewProps> = ({
             <Activity className="h-4 w-4" strokeWidth={1.75} />
           </div>
         </div>
-        <div className="mt-2 flex items-baseline gap-2">
-          <span className="text-2xl font-bold tracking-tight text-[var(--gh-text)]">
+        <div className="mt-3 flex items-baseline gap-2">
+          <span className="text-3xl font-bold tracking-tight text-[var(--gh-text)] font-mono">
             {latestQuake ? `M ${latestQuake.magnitude}` : 'M --'}
           </span>
           <span className="text-xs text-rose-500 font-medium">
@@ -68,6 +68,8 @@ export const StatsOverview: React.FC<StatsOverviewProps> = ({
         </p>
       </div>
 
+      {/* Three secondary — compact */}
+      <div className="sm:col-span-6 lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-4">
       {/* Stat Card 2: Total Gempa Terpantau */}
       <div
         id="stat-card-total-quakes"
@@ -147,6 +149,7 @@ export const StatsOverview: React.FC<StatsOverviewProps> = ({
         <p className="mt-1 text-xs text-[var(--gh-text-muted)]">
           Indeks Risiko Bencana Indonesia
         </p>
+      </div>
       </div>
     </div>
   );
