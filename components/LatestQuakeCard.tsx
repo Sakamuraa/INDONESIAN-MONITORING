@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Radio, MapPin, Clock, Gauge, AlertTriangle, ChevronRight, Eye, ShieldCheck } from 'lucide-react';
+import { MapPin, Clock, Gauge, AlertTriangle, ChevronRight, Eye, ShieldCheck } from 'lucide-react';
 import { EarthquakeDetail } from '@/types/disaster';
 import { LatestQuakeCardSkeleton } from '@/components/LoadingSkeletons';
 
@@ -22,106 +22,157 @@ export const LatestQuakeCard: React.FC<LatestQuakeCardProps> = ({
     return <LatestQuakeCardSkeleton />;
   }
 
-  const isSignificant = (quake.magnitude || 0) >= 5.0;
+  const mag = quake.magnitude ?? 0;
+  const isSignificant = mag >= 5.0;
+  const isCritical = quake.severity === 'critical' || mag >= 5.5;
 
-  // ponytail: format WIB correctly (Asia/Jakarta) — upgrade: use date-fns if locale complexity grows
+  const severityLabel = isCritical ? 'Kritis' : isSignificant ? 'Signifikan' : 'Moderat';
+  const severityTone = isCritical
+    ? 'bg-red-500/10 text-red-500 border-red-500/20'
+    : isSignificant
+      ? 'bg-orange-500/10 text-orange-500 border-orange-500/20'
+      : 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20';
+
+  // ponytail: WIB via Intl Asia/Jakarta, upgrade to date-fns-tz if locale complexity grows
   const formatWIB = (iso?: string, jam?: string) => {
-    if (jam) return jam;
+    if (jam) return `${jam} WIB`;
     if (!iso) return '-';
     try {
       const d = new Date(iso);
       if (isNaN(d.getTime())) return iso;
-      return d.toLocaleString('id-ID', {
-        timeZone: 'Asia/Jakarta',
-        year: 'numeric',
-        month: 'short',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false,
-      }) + ' WIB';
+      return (
+        d.toLocaleString('id-ID', {
+          timeZone: 'Asia/Jakarta',
+          year: 'numeric',
+          month: 'short',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false,
+        }) + ' WIB'
+      );
     } catch {
       return iso;
     }
   };
-  const hasCoords = Boolean((quake.lintang && quake.bujur) || (quake.latitude != null && quake.longitude != null));
-  const coordLabel = quake.lintang && quake.bujur ? `${quake.lintang}, ${quake.bujur}` : quake.latitude != null ? `${quake.latitude.toFixed(4)}, ${quake.longitude?.toFixed(4)}` : '';
+
+  const hasCoords = Boolean(
+    (quake.lintang && quake.bujur) || (quake.latitude != null && quake.longitude != null)
+  );
+  const coordLabel =
+    quake.lintang && quake.bujur
+      ? `${quake.lintang}, ${quake.bujur}`
+      : quake.latitude != null
+        ? `${quake.latitude.toFixed(4)}, ${quake.longitude?.toFixed(4)}`
+        : '';
+
+  const fallbackSeed = encodeURIComponent(String(quake.id ?? `${quake.latitude}-${quake.longitude}`));
+  const fallbackUrl = `https://picsum.photos/seed/${fallbackSeed}/640/480`;
+  const [imgError, setImgError] = React.useState(false);
+  const imgSrc = !imgError && quake.shakemapUrl ? quake.shakemapUrl : fallbackUrl;
+  const isFallback = imgError || !quake.shakemapUrl;
 
   return (
     <div
       id="latest-earthquake-showcase"
-      className="relative overflow-hidden rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface)] p-5 shadow-xs sm:p-6 transition-colors duration-150"
+      className="relative overflow-hidden rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface)] p-6 shadow-xs transition-colors duration-150"
     >
-      {/* Header bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--gh-border)] pb-4">
+      {/* Header */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--gh-border)] pb-4">
         <div className="flex items-center gap-2.5">
-          <span className="relative flex h-2.5 w-2.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75"></span>
-            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-rose-500"></span>
-          </span>
-          <span className="text-xs font-semibold uppercase tracking-wider text-rose-500">
+          <span className="h-2 w-2 shrink-0 rounded-full bg-red-500" aria-hidden />
+          <span className="text-xs font-semibold uppercase tracking-wider text-[var(--gh-text)]">
             Gempa Terkini
           </span>
-          <span className="rounded-md bg-[var(--gh-surface-raised)] border border-[var(--gh-border)] px-2 py-0.5 text-[11px] font-mono text-[var(--gh-text-muted)]">
+          <span className="rounded-md border border-[var(--gh-border)] bg-[var(--gh-surface-raised)] px-2 py-0.5 font-mono text-[11px] text-[var(--gh-text-muted)]">
             BMKG Indonesia
           </span>
         </div>
 
         {quake.tsunamiPotential ? (
-          <span className="flex items-center gap-1.5 rounded-full bg-red-500/15 px-3 py-0.5 text-xs font-semibold text-red-500 border border-red-500/30">
+          <span className="flex items-center gap-1.5 rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs font-semibold text-red-500">
             <AlertTriangle className="h-3.5 w-3.5" strokeWidth={1.75} />
             Potensi Tsunami
           </span>
         ) : (
-          <span className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-0.5 text-xs font-semibold text-emerald-500 border border-emerald-500/20">
+          <span className="flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-600">
             <ShieldCheck className="h-3.5 w-3.5" strokeWidth={1.75} />
             Tidak Berpotensi Tsunami
           </span>
         )}
       </div>
 
-      {/* Main Content Layout */}
-      <div className="mt-5 grid grid-cols-1 gap-6 lg:grid-cols-12">
-        {/* Left column: Magnitude & Core Stats */}
-        <div className="lg:col-span-4 flex flex-col justify-between">
-          <div>
-            <div className="flex items-baseline gap-3">
-              <span className="text-5xl font-bold tracking-tight text-[var(--gh-text)]">
-                M {quake.magnitude !== undefined ? quake.magnitude.toFixed(1) : '--'}
-              </span>
-              <span className="rounded-md bg-rose-500/10 px-2 py-0.5 text-xs font-semibold uppercase text-rose-500 border border-rose-500/20">
-                {quake.severity === 'critical' ? 'Kritis' : isSignificant ? 'Signifikan' : 'Moderat'}
-              </span>
-            </div>
-
-            <div className="mt-4 space-y-2 text-xs">
-              <div className="flex items-center gap-2 text-[var(--gh-text-muted)]">
-                <Clock className="h-3.5 w-3.5 text-[var(--gh-text-subtle)] shrink-0" strokeWidth={1.75} />
-                <span>
-                  {formatWIB(quake.occurredAt, quake.jam)}
-                </span>
-              </div>
-              <div className="flex items-center gap-2 text-[var(--gh-text-muted)]">
-                <Gauge className="h-3.5 w-3.5 text-[var(--gh-text-subtle)] shrink-0" strokeWidth={1.75} />
-                <span>Kedalaman: <strong className="text-[var(--gh-text)] font-mono">{quake.depth} km</strong></span>
-              </div>
-              {hasCoords && (
-                <div className="flex items-center gap-2 text-[var(--gh-text-muted)]">
-                  <MapPin className="h-3.5 w-3.5 text-[var(--gh-text-subtle)] shrink-0" strokeWidth={1.75} />
-                  <span>
-                    Koordinat: <span className="font-mono text-[var(--gh-text)]">{coordLabel}</span>
-                  </span>
-                </div>
-              )}
-            </div>
+      {/* Editorial asymmetric */}
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-5">
+        {/* Left 60% hero stacked vertically */}
+        <div className="flex flex-col lg:col-span-3">
+          {/* Magnitude */}
+          <div className="flex items-baseline gap-3">
+            <span className="font-mono text-[42px] font-semibold leading-none tracking-tight text-[var(--gh-text)]">
+              M {quake.magnitude !== undefined ? quake.magnitude.toFixed(1) : '--'}
+            </span>
+            <span
+              className={`rounded-md border px-2 py-0.5 text-xs font-semibold uppercase tracking-wide ${severityTone}`}
+            >
+              {severityLabel}
+            </span>
           </div>
 
-          <div className="mt-5 flex flex-wrap gap-2 pt-4 border-t border-[var(--gh-border)]">
+          {/* Meta stacked vertically */}
+          <div className="mt-5 space-y-2.5 border-t border-[var(--gh-border)] pt-5">
+            <div className="flex items-center gap-2 text-xs text-[var(--gh-text-muted)]">
+              <Clock className="h-3.5 w-3.5 shrink-0 text-[var(--gh-text-subtle)]" strokeWidth={1.75} />
+              <span className="font-mono text-[var(--gh-text)]">{formatWIB(quake.occurredAt, quake.jam)}</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-[var(--gh-text-muted)]">
+              <Gauge className="h-3.5 w-3.5 shrink-0 text-[var(--gh-text-subtle)]" strokeWidth={1.75} />
+              <span>
+                Kedalaman <strong className="font-mono font-semibold text-[var(--gh-text)]">{quake.depth} km</strong>
+              </span>
+            </div>
+            {hasCoords && coordLabel && (
+              <div className="flex items-center gap-2 text-xs text-[var(--gh-text-muted)]">
+                <MapPin className="h-3.5 w-3.5 shrink-0 text-[var(--gh-text-subtle)]" strokeWidth={1.75} />
+                <span>
+                  Koordinat <span className="font-mono text-[var(--gh-text)]">{coordLabel}</span>
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Location */}
+          <div className="mt-6">
+            <span className="text-[11px] font-medium uppercase tracking-wider text-[var(--gh-text-muted)]">
+              Pusat Gempa
+            </span>
+            <h3 className="mt-1.5 text-sm font-semibold leading-snug tracking-tight text-[var(--gh-text)]">
+              {quake.location}
+            </h3>
+
+            {quake.potential && (
+              <div className="mt-3 rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface-raised)] p-3 text-xs leading-relaxed text-[var(--gh-text-muted)]">
+                <span className="font-semibold text-[var(--gh-text)]">Arahan BMKG: </span>
+                {quake.potential}
+              </div>
+            )}
+
+            {quake.felt && (
+              <div className="mt-3 border-t border-[var(--gh-border)] pt-3">
+                <span className="text-[11px] font-medium uppercase tracking-wider text-[var(--gh-text-muted)]">
+                  Dirasakan MMI
+                </span>
+                <p className="mt-1 font-mono text-xs leading-relaxed text-[var(--gh-text-muted)]">{quake.felt}</p>
+              </div>
+            )}
+          </div>
+
+          {/* Actions */}
+          <div className="mt-6 flex flex-wrap gap-2">
             <button
               id="btn-view-latest-quake-on-map"
               onClick={() => onViewOnMap(quake.latitude || 0, quake.longitude || 0, quake.location || '')}
-              className="flex items-center gap-1.5 rounded-lg bg-[var(--gh-accent)] hover:opacity-90 px-3.5 py-1.5 text-xs font-semibold text-white border border-[var(--gh-accent)]/30 transition shadow-xs active:scale-95"
+              className="flex items-center gap-1.5 rounded-xl bg-[var(--gh-accent)] px-4 py-2 text-xs font-semibold text-white shadow-xs transition hover:opacity-90 active:scale-[0.98]"
             >
               <Eye className="h-3.5 w-3.5" strokeWidth={1.75} />
               Lihat di Peta
@@ -129,68 +180,42 @@ export const LatestQuakeCard: React.FC<LatestQuakeCardProps> = ({
             <button
               id="btn-open-latest-quake-details"
               onClick={() => onOpenDetails(quake)}
-              className="flex items-center gap-1.5 rounded-lg bg-[var(--gh-surface-raised)] hover:bg-[var(--gh-border)] px-3.5 py-1.5 text-xs font-semibold text-[var(--gh-text)] border border-[var(--gh-border)] transition shadow-xs active:scale-95"
+              className="flex items-center gap-1.5 rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface-raised)] px-4 py-2 text-xs font-semibold text-[var(--gh-text)] shadow-xs transition hover:bg-[var(--gh-border)] active:scale-[0.98]"
             >
-              Detail & Mitigasi
+              Detail dan Mitigasi
               <ChevronRight className="h-3.5 w-3.5 text-[var(--gh-text-muted)]" strokeWidth={1.75} />
             </button>
           </div>
         </div>
 
-        {/* Center column: Lokasi & Wilayah Dirasakan */}
-        <div className="lg:col-span-5 flex flex-col justify-between rounded-lg bg-[var(--gh-surface-raised)] p-4 border border-[var(--gh-border)]">
-          <div>
-            <span className="text-[11px] font-medium uppercase tracking-wider text-[var(--gh-text-muted)]">
-              Pusat Gempa (Episentrum)
-            </span>
-            <h3 className="mt-1 text-sm font-semibold text-[var(--gh-text)] leading-snug">
-              {quake.location}
-            </h3>
-
-            {quake.potential && (
-              <div className="mt-3 rounded-md bg-[var(--gh-bg)] p-2.5 text-xs text-[var(--gh-text-muted)] border border-[var(--gh-border)]">
-                <span className="font-semibold text-rose-500">Arahan BMKG: </span>
-                {quake.potential}
-              </div>
-            )}
+        {/* Right 40% shakemap crowns */}
+        <div className="lg:col-span-2">
+          <div className="group relative overflow-hidden rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface-raised)]">
+            <div className="relative aspect-[4/3] w-full overflow-hidden bg-[var(--gh-bg)]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={imgSrc}
+                alt={isFallback ? 'Ilustrasi peta wilayah gempa' : 'Peta Shakemap BMKG'}
+                className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+                loading="lazy"
+                onError={() => setImgError(true)}
+              />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-black/0 to-transparent opacity-60" />
+              <span className="absolute bottom-2 left-2 rounded-md bg-black/60 px-2 py-0.5 font-mono text-[10px] font-medium tracking-wide text-white backdrop-blur">
+                {isFallback ? 'Ilustrasi wilayah' : 'Shakemap BMKG'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between px-3 py-2.5">
+              <span className="font-mono text-[11px] text-[var(--gh-text-muted)]">
+                {quake.latitude?.toFixed(2)}, {quake.longitude?.toFixed(2)}
+              </span>
+              <span className="text-[11px] font-medium text-[var(--gh-text-muted)]">Sumber BMKG</span>
+            </div>
           </div>
 
-          {quake.felt && (
-            <div className="mt-3 pt-3 border-t border-[var(--gh-border)]">
-              <span className="text-[11px] font-medium uppercase tracking-wider text-amber-500">
-                Skala Guncangan (MMI):
-              </span>
-              <p className="mt-1 text-xs text-[var(--gh-text-muted)] font-mono leading-relaxed">
-                {quake.felt}
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Right column: Shakemap Preview if available */}
-        <div className="lg:col-span-3 flex flex-col items-center justify-center rounded-lg bg-[var(--gh-surface-raised)] p-3 border border-[var(--gh-border)] text-center">
-          {quake.shakemapUrl ? (
-            <div className="group relative w-full overflow-hidden rounded-md border border-[var(--gh-border)]">
-              <img
-                src={quake.shakemapUrl}
-                alt="Peta Shakemap BMKG"
-                className="h-32 w-full object-cover rounded-md transition-transform group-hover:scale-105"
-                loading="lazy"
-                onError={(e) => {
-                  (e.target as HTMLElement).style.display = 'none';
-                }}
-              />
-              <span className="mt-1.5 block text-[10px] text-[var(--gh-text-muted)]">
-                Peta Shakemap BMKG
-              </span>
-            </div>
-          ) : (
-            <div className="py-6 text-[var(--gh-text-muted)]">
-              <MapPin className="mx-auto h-7 w-7 text-[var(--gh-text-subtle)] mb-2" strokeWidth={1.5} />
-              <span className="text-xs">Episentrum di laut/darat</span>
-              <p className="text-[10px] text-[var(--gh-text-subtle)] mt-1">Koordinat {quake.latitude}, {quake.longitude}</p>
-            </div>
-          )}
+          <p className="mt-3 text-xs leading-relaxed text-[var(--gh-text-muted)]">
+            Visual shakemap mempermudah pembacaan sebaran guncangan. Gunakan peta untuk konteks jarak dan mitigasi.
+          </p>
         </div>
       </div>
     </div>

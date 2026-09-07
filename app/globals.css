@@ -20,6 +20,8 @@
   --gh-btn-bg: #21262d;
   --gh-btn-hover: #30363d;
   --gh-btn-border: #30363d;
+  --gh-font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  --gh-radius: 12px;
 }
 
 html.dark {
@@ -70,13 +72,22 @@ body {
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-/* Custom MapLibre popup and control overrides */
+.font-mono {
+  font-family: var(--gh-font-mono);
+}
+
+/* MapLibre overrides — token-locked, no decorative grain */
+.maplibregl-map {
+  font-family: inherit;
+}
+
 .maplibregl-popup-content {
   padding: 0 !important;
-  border-radius: 0.75rem !important;
+  border-radius: var(--gh-radius) !important;
+  border: 1px solid var(--gh-border) !important;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.2) !important;
   overflow: hidden;
-  background: transparent !important;
+  background: var(--gh-surface) !important;
 }
 
 .maplibregl-popup-anchor-top .maplibregl-popup-tip,
@@ -108,6 +119,22 @@ body {
   background: var(--gh-surface-raised) !important;
 }
 
+.maplibregl-ctrl-attrib {
+  background: color-mix(in srgb, var(--gh-surface) 92%, transparent) !important;
+  color: var(--gh-text-muted) !important;
+  font-size: 10px !important;
+  border-top-left-radius: 6px !important;
+  padding: 2px 6px !important;
+}
+
+.maplibregl-ctrl-attrib a {
+  color: var(--gh-text-muted) !important;
+}
+
+.maplibregl-canvas:focus {
+  outline: none;
+}
+
 /* Pulsing radar animation for latest earthquake epicenter */
 @keyframes epicenter-pulse {
   0% {
@@ -126,6 +153,12 @@ body {
 
 .epicenter-ring {
   animation: epicenter-pulse 2s infinite cubic-bezier(0.45, 0, 0.55, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .epicenter-ring {
+    animation: none;
+  }
 }
 
 @keyframes shimmer {
@@ -158,5 +191,3 @@ body {
   height: 0 !important;
   background: transparent !important;
 }
-
-

@@ -24,7 +24,6 @@ import { Flame } from 'lucide-react';
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'map' | 'volcanoes' | 'risk' | 'regions' | 'mitigation'>('dashboard');
 
-  // State data
   const [latestQuake, setLatestQuake] = useState<EarthquakeDetail | null>(null);
   const [earthquakes, setEarthquakes] = useState<EarthquakeDetail[]>([]);
   const [volcanoes, setVolcanoes] = useState<VolcanoDetail[]>(OFFICIAL_ACTIVE_VOLCANOES);
@@ -35,7 +34,6 @@ export default function HomePage() {
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
-  // Interaction modals & focus
   const [selectedDisaster, setSelectedDisaster] = useState<Disaster | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number; title?: string } | null>(null);
@@ -54,7 +52,6 @@ export default function HomePage() {
     }).length;
   }, [volcanoes]);
 
-  // Fetch real data from our API gateway
   const loadData = useCallback(async (isManualRefresh = false) => {
     if (isManualRefresh) {
       setIsRefreshing(true);
@@ -63,21 +60,18 @@ export default function HomePage() {
     }
 
     try {
-      // 1. Fetch latest earthquake
       const resLatest = await fetch('/api/earthquakes/latest', { cache: 'no-store' });
       const dataLatest = await resLatest.json();
       if (dataLatest.success && dataLatest.data) {
         setLatestQuake(dataLatest.data);
       }
 
-      // 2. Fetch recent earthquakes list
       const resQuakes = await fetch('/api/earthquakes', { cache: 'no-store' });
       const dataQuakes = await resQuakes.json();
       if (dataQuakes.success && dataQuakes.data) {
         setEarthquakes(dataQuakes.data);
       }
 
-      // 3. Fetch volcanoes from PVMBG / MAGMA
       const resVolcanoes = await fetch('/api/volcanoes', { cache: 'no-store' });
       const dataVolcanoes = await resVolcanoes.json();
       if (dataVolcanoes.success && Array.isArray(dataVolcanoes.data)) {
@@ -102,14 +96,12 @@ export default function HomePage() {
         }
       }
 
-      // 4. Fetch risk overview
       const resRisk = await fetch('/api/risk', { cache: 'no-store' });
       const dataRisk = await resRisk.json();
       if (dataRisk.success && dataRisk.provinces) {
         setProvinces(dataRisk.provinces);
       }
 
-      // 5. Fetch layers
       const resLayers = await fetch('/api/map/layers', { cache: 'no-store' });
       const dataLayers = await resLayers.json();
       if (dataLayers.success && dataLayers.data) {
@@ -125,11 +117,9 @@ export default function HomePage() {
     }
   }, []);
 
-  // Initial load & automatic polling every 60 seconds for live BMKG updates
   useEffect(() => {
     let isMounted = true;
 
-    // Check URL parameters on mount
     const timer = setTimeout(() => {
       if (typeof window !== 'undefined') {
         const searchParams = new URLSearchParams(window.location.search);
@@ -164,13 +154,11 @@ export default function HomePage() {
     };
   }, [loadData]);
 
-  // Handler for focusing on map
   const handleFocusMap = (lat: number, lng: number, title?: string) => {
     setSelectedLocation({ lat, lng, title });
     setActiveTab('map');
   };
 
-  // Handler for province selection from search
   const handleSelectProvinceByName = (name: string) => {
     const prov = provinces.find((p) => p.provinceName.toLowerCase().includes(name.toLowerCase()));
     if (prov) {
@@ -179,8 +167,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-950 text-slate-100 font-sans">
-      {/* Sticky Navigation Header */}
+    <div className="flex min-h-screen flex-col bg-[var(--gh-bg)] text-[var(--gh-text)] font-sans antialiased">
       <Navbar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -190,7 +177,6 @@ export default function HomePage() {
         onOpenSearch={() => setIsSearchOpen(true)}
       />
 
-      {/* Emergency Alert Banner for M >= 6.0 or Tsunami */}
       <AlertBanner
         latestDisaster={
           latestQuake
@@ -217,12 +203,9 @@ export default function HomePage() {
         onSelectDisaster={(d) => setSelectedDisaster(d)}
       />
 
-      {/* Main Content Area */}
-      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 pb-24 md:pb-6">
-        {/* Tab 1: Dashboard View */}
+      <main className="mx-auto w-full max-w-7xl flex-1 px-4 pt-5 pb-8 sm:px-6 pb-24 md:pb-8">
         {activeTab === 'dashboard' && (
-          <div className="space-y-6">
-            {/* Top Stat Metrics */}
+          <div className="space-y-5">
             <StatsOverview
               latestQuake={latestQuake}
               allEarthquakes={earthquakes}
@@ -234,35 +217,34 @@ export default function HomePage() {
               onOpenRiskTab={() => setActiveTab('risk')}
             />
 
-            {/* Volcano Quick Banner — calm, no dot spam */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface)] p-4 sm:p-5 shadow-sm transition-colors duration-150">
-              <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-orange-500/10 text-orange-500 border border-orange-500/20 shrink-0">
+            {/* Volcano banner — calm, left content, right asset, sentence case, no dot */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface)] px-4 py-4 sm:px-5 shadow-xs">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-sm font-semibold tracking-tight text-[var(--gh-text)]">
+                    Volcano monitor
+                  </span>
+                  <span className="rounded border border-[var(--gh-border)] bg-[var(--gh-surface-raised)] px-2 py-0.5 text-[11px] font-medium text-[var(--gh-text-muted)]">
+                    PVMBG / MAGMA
+                  </span>
+                </div>
+                <p className="mt-1 max-w-[65ch] text-xs leading-relaxed text-[var(--gh-text-muted)]">
+                  {volcanoes.length} gunung api dipantau resmi. Status Level I-IV dan riwayat erupsi terkini.
+                </p>
+              </div>
+              <div className="flex shrink-0 items-center gap-3 self-start sm:self-center">
+                <div className="hidden sm:flex h-9 w-9 items-center justify-center rounded-lg border border-orange-500/20 bg-orange-500/10 text-orange-500">
                   <Flame className="h-4 w-4" strokeWidth={1.75} />
                 </div>
-                <div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-sm font-semibold text-[var(--gh-text)] tracking-tight">
-                      Volcano Monitor
-                    </span>
-                    <span className="text-[11px] bg-[var(--gh-surface-raised)] text-[var(--gh-text-muted)] border border-[var(--gh-border)] px-2 py-0.5 rounded font-medium">
-                      PVMBG / MAGMA
-                    </span>
-                  </div>
-                  <p className="text-xs text-[var(--gh-text-muted)]">
-                    {volcanoes.length} gunung api dipantau secara resmi. Pantau status Level I-IV &amp; riwayat erupsi terkini.
-                  </p>
-                </div>
+                <button
+                  onClick={() => setActiveTab('volcanoes')}
+                  className="rounded-lg border border-[var(--gh-border)] bg-[var(--gh-surface-raised)] px-3 py-1.5 text-xs font-medium text-[var(--gh-text)] transition hover:border-[var(--gh-border-active)] hover:bg-[var(--gh-btn-hover)] active:scale-[0.98]"
+                >
+                  Buka monitor &rarr;
+                </button>
               </div>
-              <button
-                onClick={() => setActiveTab('volcanoes')}
-                className="self-start sm:self-center shrink-0 rounded-md bg-[var(--gh-surface-raised)] hover:bg-[var(--gh-btn-hover)] text-[var(--gh-text)] border border-[var(--gh-border)] hover:border-[var(--gh-border-active)] px-3 py-1.5 text-xs font-medium transition"
-              >
-                Buka Volcano Monitor &rarr;
-              </button>
             </div>
 
-            {/* Showcase Card for Latest Quake */}
             <LatestQuakeCard
               quake={latestQuake}
               isLoading={loading}
@@ -289,18 +271,22 @@ export default function HomePage() {
               }}
             />
 
-            {/* Interactive Map & Live Disasters Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* Map + List — distinct grid family (12-col), not bento, not editorial */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
               <div className="lg:col-span-7">
-                <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--gh-text)]">
-                    Peta Pantauan Bencana Interaktif
+                {/* Vertical stack header — not split-header */}
+                <div className="mb-3">
+                  <h2 className="text-sm font-semibold tracking-tight text-[var(--gh-text)]">
+                    Peta pantauan bencana interaktif
                   </h2>
+                  <p className="mt-1 max-w-[65ch] text-xs leading-relaxed text-[var(--gh-text-muted)]">
+                    Sebaran seismik BMKG, vulkanik PVMBG, dan layer bahaya InaRISK dalam satu peta.
+                  </p>
                   <button
                     onClick={() => setActiveTab('map')}
-                    className="text-xs font-medium text-[var(--gh-accent)] hover:underline transition"
+                    className="mt-2 text-xs font-medium text-[var(--gh-accent)] hover:underline"
                   >
-                    Buka Mode Layar Penuh &rarr;
+                    Buka mode layar penuh &rarr;
                   </button>
                 </div>
                 <InteractiveMap
@@ -326,17 +312,17 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* Tab 2: Full Map View */}
         {activeTab === 'map' && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-lg sm:text-xl font-bold text-[var(--gh-text)]">Peta Interaktif Kebencanaan Indonesia</h1>
-                <p className="text-xs text-[var(--gh-text-muted)]">
-                  Visualisasi GIS seismik BMKG, PVMBG, dan layer bahaya InaRISK BNPB
-                </p>
-              </div>
-              <span className="rounded-md bg-[var(--gh-surface)] border border-[var(--gh-border)] px-2.5 py-1 font-mono text-xs text-[var(--gh-text-muted)]">
+            {/* Vertical stack — not split-header */}
+            <div>
+              <h1 className="text-lg font-semibold tracking-tight text-[var(--gh-text)]">
+                Peta interaktif kebencanaan Indonesia
+              </h1>
+              <p className="mt-1 max-w-[65ch] text-xs leading-relaxed text-[var(--gh-text-muted)]">
+                Visualisasi GIS seismik BMKG, PVMBG, dan layer bahaya InaRISK BNPB.
+              </p>
+              <span className="mt-2 inline-flex rounded-md border border-[var(--gh-border)] bg-[var(--gh-surface)] px-2.5 py-1 font-mono text-[11px] text-[var(--gh-text-muted)]">
                 WGS 84 • EPSG:4326
               </span>
             </div>
@@ -352,19 +338,15 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* Tab 3: Risk Map (IRBI BNPB) */}
         {activeTab === 'risk' && (
           <RiskMapView
             provinces={provinces}
             riskLayers={riskLayers}
             isLoading={loading}
-            onSelectProvince={(prov) => {
-              // open province view
-            }}
+            onSelectProvince={(prov) => {}}
           />
         )}
 
-        {/* Tab 4: Region Explorer */}
         {activeTab === 'regions' && (
           <RegionExplorerView
             provinces={provinces}
@@ -373,10 +355,8 @@ export default function HomePage() {
           />
         )}
 
-        {/* Tab 5: Mitigation & Safety Guides */}
         {activeTab === 'mitigation' && <MitigationGuideView />}
 
-        {/* Tab 6: Volcano Monitor (PVMBG / MAGMA) */}
         {activeTab === 'volcanoes' && (
           <VolcanoMonitorView
             onFocusMap={(lat, lng, title) => handleFocusMap(lat, lng, title)}
@@ -384,14 +364,12 @@ export default function HomePage() {
         )}
       </main>
 
-      {/* Mobile Bottom Navigation Bar */}
       <MobileBottomNav
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         siagaVolcanoCount={siagaVolcanoCount}
       />
 
-      {/* Global Search Dialog Modal */}
       <GlobalSearchModal
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
@@ -400,14 +378,12 @@ export default function HomePage() {
         onSelectProvinceByName={handleSelectProvinceByName}
       />
 
-      {/* Disaster Technical Detail Modal */}
       <DisasterDetailModal
         disaster={selectedDisaster}
         onClose={() => setSelectedDisaster(null)}
         onViewOnMap={(lat, lng, title) => handleFocusMap(lat, lng, title)}
       />
 
-      {/* Standard Footer */}
       <Footer />
     </div>
   );
