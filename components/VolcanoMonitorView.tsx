@@ -127,7 +127,11 @@ export const VolcanoMonitorView: React.FC<VolcanoMonitorViewProps> = ({ onFocusM
 
       return matchesFilter && matchesSearch;
     })
-    .sort((a, b) => levelOf(b.status) - levelOf(a.status));
+    .sort((a, b) => {
+      const ra = LEVELS.find((l) => l.key === levelOf(a.status))?.rank ?? 1;
+      const rb = LEVELS.find((l) => l.key === levelOf(b.status))?.rank ?? 1;
+      return rb - ra;
+    });
 
   const byLevel = (key: LevelKey) =>
     volcanoes.filter((v) => levelOf(v.status) === key).length;
@@ -300,7 +304,7 @@ export const VolcanoMonitorView: React.FC<VolcanoMonitorViewProps> = ({ onFocusM
                 }`}
               >
                 {lvl && active && <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: lvl.color }} />}
-                {key === 'all' ? `Semua (${countsForRow.all})` : `${lvl.label} (${countsForRow[key]})`}
+                {key === 'all' ? `Semua (${countsForRow.all})` : `${lvl!.label} (${countsForRow[key as LevelKey]})`}
               </button>
             );
           })}
