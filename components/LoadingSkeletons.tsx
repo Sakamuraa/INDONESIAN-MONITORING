@@ -506,3 +506,76 @@ export const DashboardSkeleton: React.FC = () => {
     </div>
   );
 };
+
+/**
+ * Skeleton for the muted alert strip — thin bar, faint block, no ping dot.
+ */
+export const AlertBannerSkeleton: React.FC = () => {
+  return (
+    <div className="border-b border-[var(--gh-border)] bg-[var(--gh-surface-inset)]">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-2">
+        <div className="flex items-center gap-2.5">
+          <Skeleton className="h-6 w-6 rounded-md" />
+          <Skeleton className="h-3 w-28" />
+          <Skeleton className="h-3 w-64 hidden sm:block" />
+        </div>
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-3 w-10" />
+          <Skeleton className="h-3 w-3" />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/**
+ * Skeleton for the Mitigation Guide — editorial bento layout:
+ * left icon rails + right bodies, not equal pulses.
+ */
+export const MitigationGuideSkeleton: React.FC = () => {
+  return (
+    <div className="space-y-5">
+      {/* Header + tab rail */}
+      <div className="rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface)] px-5 py-4 sm:px-6">
+        <div className="flex items-center gap-2.5">
+          <Skeleton className="h-5 w-5 rounded-md" />
+          <Skeleton className="h-4 w-52" />
+        </div>
+        <Skeleton className="h-3 w-96 max-w-full mt-2" />
+        <div className="mt-4 flex flex-wrap gap-1.5 pt-3 border-t border-[var(--gh-border)]">
+          {[72, 108, 118, 92, 96].map((w, i) => (
+            <Skeleton key={i} className="h-6 rounded-lg" style={{ width: w }} />
+          ))}
+        </div>
+      </div>
+
+      {/* Editorial timeline rows — tall left rail + body */}
+      {[0, 1, 2].map((i) => (
+        <div
+          key={i}
+          className={`rounded-xl border overflow-hidden ${i === 1 ? 'border-red-500/20' : 'border-[var(--gh-border)] bg-[var(--gh-surface)]'}`}
+        >
+          <div className="flex flex-col sm:flex-row">
+            {/* Left rail */}
+            <div className="flex sm:flex-col items-center gap-3 sm:gap-2 px-5 py-4 sm:w-44 shrink-0 sm:border-r border-b sm:border-b-0 border-[var(--gh-border)] bg-[var(--gh-surface-raised)]/50">
+              <Skeleton className="h-8 w-8 rounded-lg" />
+              <div className="flex flex-col sm:items-center gap-1.5">
+                <Skeleton className="h-3 w-16" />
+                <Skeleton className="h-2.5 w-20 hidden sm:block" />
+              </div>
+            </div>
+            {/* Body */}
+            <div className="flex-1 p-5 sm:p-6 space-y-3">
+              {[0, 1, 2].map((b) => (
+                <div key={b} className="flex items-start gap-2.5">
+                  <Skeleton className="mt-1.5 h-1.5 w-1.5 rounded-full shrink-0" />
+                  <Skeleton className="h-3 flex-1" style={{ width: `${100 - b * 14}%` }} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
