@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { EarthquakeDetail, VolcanoDetail, Disaster } from '@/types/disaster';
 import { GisLayerConfig } from '@/types/risk';
+import { useLanguage } from '@/lib/LanguageContext';
 
 interface InteractiveMapProps {
   earthquakes: EarthquakeDetail[];
@@ -30,6 +31,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   selectedLocation,
   onSelectDisaster,
 }) => {
+  const { t } = useLanguage();
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markersRef = useRef<maplibregl.Marker[]>([]);
@@ -371,7 +373,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
             className={`flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold text-zinc-900 dark:text-white transition active:scale-[0.98] ${glass}`}
           >
             <Layers className="h-3.5 w-3.5 text-[var(--gh-accent)]" strokeWidth={1.75} />
-            <span>Filter Layer</span>
+            <span>{t('map.filter_layer')}</span>
             <ChevronDown className={`h-3 w-3 text-zinc-500 transition-transform duration-200 ${showLayerMenu ? 'rotate-180' : ''}`} strokeWidth={1.75} />
           </button>
 
@@ -380,7 +382,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
               <div className="flex items-center justify-between border-b border-white/10 pb-2">
                 <span className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-zinc-900 dark:text-white">
                   <Layers className="h-3.5 w-3.5 text-[var(--gh-accent)]" strokeWidth={1.75} />
-                  Layer Bencana
+                  {t('map.layer_bencana')}
                 </span>
                 <button
                   onClick={() => setShowLayerMenu(false)}
@@ -394,7 +396,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                 <label className="flex cursor-pointer items-center justify-between text-zinc-700 hover:opacity-80 dark:text-zinc-200">
                   <span className="flex items-center gap-2">
                     <span className="h-2 w-2 rounded-full bg-orange-500" />
-                    Gempa M &ge; 5.0 (BMKG)
+                    {t('map.quake_m5')}
                   </span>
                   <input
                     type="checkbox"
@@ -407,7 +409,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                 <label className="flex cursor-pointer items-center justify-between text-zinc-700 hover:opacity-80 dark:text-zinc-200">
                   <span className="flex items-center gap-2">
                     <span className="h-2 w-2 rounded-full bg-yellow-400" />
-                    Gempa Dirasakan (MMI)
+                    {t('map.quake_felt')}
                   </span>
                   <input
                     type="checkbox"
@@ -420,7 +422,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                 <label className="flex cursor-pointer items-center justify-between text-zinc-700 hover:opacity-80 dark:text-zinc-200">
                   <span className="flex items-center gap-2">
                     <span className="h-2 w-2 rounded-full bg-red-500" />
-                    Gunung Api Aktif (PVMBG)
+                    {t('map.volcano_active')}
                   </span>
                   <input
                     type="checkbox"
@@ -433,14 +435,14 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
               <div className="mt-3 border-t border-white/10 pt-3">
                 <span className="mb-1 block text-[10px] font-semibold text-zinc-500 dark:text-zinc-400">
-                  Layer Bahaya InaRISK BNPB
+                  {t('map.inarisk')}
                 </span>
                 <select
                   value={activeGisLayer}
                   onChange={(e) => setActiveGisLayer(e.target.value)}
                   className="w-full rounded-lg border border-white/10 bg-white/60 px-2 py-1.5 text-xs text-zinc-900 backdrop-blur focus:border-[var(--gh-border-active)] focus:outline-none dark:bg-zinc-900/60 dark:text-white"
                 >
-                  <option value="none">Tanpa Layer InaRISK</option>
+                  <option value="none">{t('map.no_inarisk')}</option>
                   {riskLayers.map((l) => (
                     <option key={l.id} value={l.id}>
                       {l.name}
@@ -459,19 +461,19 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
               onClick={() => setMapStyle('streets')}
               className={`rounded-lg px-2.5 py-1.5 transition ${mapStyle === 'streets' ? 'bg-zinc-900 text-white shadow-sm dark:bg-white dark:text-zinc-900' : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white'}`}
             >
-              Terang
+              {t('map.bright')}
             </button>
             <button
               onClick={() => setMapStyle('dark')}
               className={`rounded-lg px-2.5 py-1.5 transition ${mapStyle === 'dark' ? 'bg-zinc-900 text-white shadow-sm dark:bg-white dark:text-zinc-900' : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white'}`}
             >
-              Gelap
+              {t('map.dark')}
             </button>
             <button
               onClick={() => setMapStyle('satellite')}
               className={`rounded-lg px-2.5 py-1.5 transition ${mapStyle === 'satellite' ? 'bg-zinc-900 text-white shadow-sm dark:bg-white dark:text-zinc-900' : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white'}`}
             >
-              Satelit
+              {t('map.satellite')}
             </button>
           </div>
 
@@ -482,7 +484,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
               }
             }}
             className={`rounded-xl p-2.5 text-zinc-700 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white transition active:scale-95 ${glassSubtle}`}
-            title="Reset Tampilan Indonesia"
+            title={t('map.reset')}
+            aria-label={t('map.reset')}
           >
             <Maximize2 className="h-3.5 w-3.5" strokeWidth={1.75} />
           </button>
@@ -498,7 +501,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
               className={`mx-auto flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-medium text-zinc-900 dark:text-white transition hover:scale-[1.02] active:scale-[0.98] ${glassSubtle}`}
             >
               <Info className="h-3 w-3 text-[var(--gh-accent)]" strokeWidth={1.75} />
-              <span>Legenda</span>
+              <span>{t('map.legend')}</span>
               <Compass className="h-3 w-3 text-zinc-400" strokeWidth={1.75} />
             </button>
           ) : (
@@ -506,7 +509,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
               <div className="flex items-center justify-between border-b border-white/10 pb-2">
                 <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-zinc-900 dark:text-white">
                   <Info className="h-3 w-3 text-[var(--gh-accent)]" strokeWidth={1.75} />
-                  Legenda Simbol Peta
+                  {t('map.legend')}
                 </span>
                 <button
                   onClick={() => setShowLegend(false)}

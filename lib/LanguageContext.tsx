@@ -1,0 +1,484 @@
+'use client';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+
+export type Lang = 'id' | 'en';
+
+const STORAGE_KEY = 'onheil-lang';
+
+type Dict = Record<string, string>;
+
+const id: Dict = {
+  // nav
+  'nav.dashboard': 'Dashboard',
+  'nav.map': 'Peta',
+  'nav.volcanoes': 'Gunung Api',
+  'nav.risk': 'Risiko',
+  'nav.regions': 'Wilayah',
+  'nav.mitigation': 'Mitigasi',
+  'nav.search': 'Cari',
+  'nav.search_kbd': '/',
+  'nav.light': 'Mode Terang',
+  'nav.dark': 'Mode Gelap',
+  'nav.refresh': 'Perbarui data',
+  'nav.to_dashboard': 'Ke dashboard',
+  'nav.main': 'Navigasi utama',
+  'nav.lang_id': 'ID',
+  'nav.lang_en': 'EN',
+
+  // page hero/dashboard shell
+  'hero.subtitle': 'Pemantauan bencana Indonesia, satu tempat',
+  'hero.desc': 'Data resmi BMKG, PVMBG, dan BNPB InaRISK dalam visual yang tenang dan dapat diverifikasi.',
+  'hero.trust': 'Data resmi BMKG, BNPB, PVMBG',
+  'hero.cta_dashboard': 'Buka Dashboard',
+  'hero.cta_map': 'Lihat Peta',
+  'hero.source': 'Sumber: BMKG',
+  'page.peta_title': 'Peta Pantauan Bencana Interaktif',
+  'page.peta_sub': 'Visualisasi GIS seismik BMKG, PVMBG, dan layer bahaya InaRISK BNPB',
+  'page.buka_full': 'Buka Mode Layar Penuh',
+  'page.volcano_banner_title': 'Volcano Monitor',
+  'page.volcano_banner_desc': '44 gunung api dipantau secara resmi. Pantau status Level I-IV & riwayat erupsi terkini.',
+  'page.volcano_cta': 'Buka Volcano Monitor',
+  'page.map_full_title': 'Peta Interaktif Kebencanaan Indonesia',
+  'page.map_full_sub': 'Visualisasi GIS seismik BMKG, PVMBG, dan layer bahaya InaRISK BNPB',
+
+  // stats
+  'stats.latest': 'Gempa Terkini',
+  'stats.latest_depth': 'kedalaman',
+  'stats.latest_wait': 'Menunggu data BMKG terbaru',
+  'stats.view_catalog': 'Lihat katalog',
+  'stats.map_shake': 'Peta guncangan',
+  'stats.total': 'Total Gempa Signifikan',
+  'stats.total_sub': 'M ≥ 5.0 dan dirasakan',
+  'stats.total_desc': 'Katalog seismik realtime BMKG',
+  'stats.volcano': 'Gunung Api Siaga',
+  'stats.volcano_of': 'dari {n} terpantau',
+  'stats.volcano_names': 'Merapi, Semeru, Ibu, Lewotobi',
+  'stats.risk': 'Provinsi Risiko Tinggi',
+  'stats.risk_desc': 'Indeks Risiko Bencana Indonesia, BNPB InaRISK',
+  'stats.open_risk': 'Buka mode risiko',
+  'stats.more': '+{n} lagi',
+
+  // latest quake card
+  'quake.latest_title': 'Gempa Terkini',
+  'quake.bmkg': 'BMKG Indonesia',
+  'quake.tsunami_yes': 'Potensi Tsunami',
+  'quake.tsunami_no': 'Tidak Berpotensi Tsunami',
+  'quake.depth': 'Kedalaman',
+  'quake.coords': 'Koordinat',
+  'quake.epi': 'Pusat Gempa',
+  'quake.advisory': 'Arahan BMKG: ',
+  'quake.felt': 'Dirasakan MMI',
+  'quake.view_map': 'Lihat di Peta',
+  'quake.detail': 'Detail dan Mitigasi',
+  'quake.illus': 'Ilustrasi wilayah',
+  'quake.shakemap': 'Shakemap BMKG',
+  'quake.source_bmkg': 'Sumber BMKG',
+  'quake.visual_desc': 'Visual shakemap mempermudah pembacaan sebaran guncangan. Gunakan peta untuk konteks jarak dan mitigasi.',
+  'quake.level_critical': 'Kritis',
+  'quake.level_significant': 'Signifikan',
+  'quake.level_moderate': 'Moderat',
+
+  // volcano
+  'volcano.title': 'Volcano Monitor Indonesia',
+  'volcano.sub': 'Pemantauan aktivitas vulkanik dan status peringatan (Level I-IV) langsung dari sumber resmi.',
+  'volcano.refresh': 'Perbarui',
+  'volcano.levelI': 'Level I (Normal)',
+  'volcano.levelII': 'Level II (Waspada)',
+  'volcano.levelIII': 'Level III (Siaga)',
+  'volcano.levelIV': 'Level IV (Awas)',
+  'volcano.total': 'Total Dipantau',
+  'volcano.active': 'Gunung api aktif',
+  'volcano.recent': 'Erupsi Terkini',
+  'volcano.recent_sub': 'Laporan 24 jam terakhir',
+  'volcano.source': 'Sumber Data',
+  'volcano.official': 'PVMBG / MAGMA ESDM',
+  'volcano.portal': 'Portal resmi',
+  'volcano.all': 'Semua ({n})',
+  'volcano.search_ph': 'Cari gunung atau provinsi',
+  'volcano.no_match': 'Tidak ada gunung api yang cocok dengan kriteria pencarian.',
+  'volcano.show_all': 'Tampilkan semua',
+  'volcano.activity': 'Aktivitas Erupsi Terkini',
+  'volcano.no_activity': 'Tidak ada laporan erupsi baru dalam beberapa jam terakhir.',
+
+  // disaster list
+  'list.title': 'Daftar Peristiwa Bencana Terkini',
+  'list.count': '{n} rekaman terverifikasi dari BMKG & PVMBG',
+  'list.filter_all': 'Semua',
+  'list.filter_m5': 'Gempa M ≥ 5.0',
+  'list.filter_felt': 'Dirasakan',
+  'list.filter_volcano': 'Gunung Api',
+  'list.search_ph': 'Cari lokasi, pulau, atau nama gunung...',
+  'list.mag_all': 'Semua Magnitudo',
+  'list.mag_4': 'M ≥ 4.0',
+  'list.mag_5': 'M ≥ 5.0 (Signifikan)',
+  'list.mag_6': 'M ≥ 6.0 (Kuat/Merusak)',
+  'list.empty': 'Tidak ada peristiwa bencana sesuai filter',
+  'list.empty_hint': 'Coba sesuaikan kata kunci pencarian atau rentang magnitudo',
+  'list.depth': 'Kedalaman {n} km',
+  'list.felt': 'Dirasakan: {v}',
+  'list.focus_map': 'Fokus di Peta',
+  'list.detail': 'Detail & Mitigasi',
+  'list.show_more': 'Lihat semua {n} (+{k} lagi)',
+  'list.show_less': 'Tampilkan lebih sedikit',
+  'list.active_monitor': 'Pemantauan Aktif',
+
+  // map
+  'map.filter_layer': 'Filter Layer',
+  'map.layer_bencana': 'Layer Bencana',
+  'map.quake_m5': 'Gempa M ≥ 5.0 (BMKG)',
+  'map.quake_felt': 'Gempa Dirasakan (MMI)',
+  'map.volcano_active': 'Gunung Api Aktif (PVMBG)',
+  'map.inarisk': 'Layer Bahaya InaRISK BNPB:',
+  'map.no_inarisk': 'Tanpa Layer InaRISK',
+  'map.bright': 'Terang',
+  'map.dark': 'Gelap',
+  'map.satellite': 'Satelit',
+  'map.reset': 'Reset Tampilan Indonesia',
+  'map.legend': 'Legenda',
+  'map.attrib': 'MapLibre | © CARTO © OpenStreetMap',
+
+  // risk
+  'risk.title': 'Indeks Risiko Bencana Indonesia (IRBI)',
+  'risk.formula': 'Risiko = Bahaya × Kerentanan × Kapasitas',
+  'risk.pillars': 'Tiga pilar: Bahaya, Kerentanan, Kapasitas',
+  'risk.select_hazard': 'Pilih Bahaya',
+  'risk.select_class': 'Kelas Risiko',
+  'risk.count_high': 'Tinggi {n}',
+  'risk.count_med': 'Sedang {n}',
+  'risk.count_low': 'Rendah {n}',
+  'risk.group_high': 'Risiko Tinggi',
+  'risk.group_med': 'Risiko Sedang',
+  'risk.group_low': 'Risiko Rendah',
+  'risk.no_data': 'Belum ada data InaRISK untuk filter ini.',
+
+  // region
+  'region.title': 'Eksplorasi Profil Risiko Wilayah',
+  'region.sub': 'Profil ketahanan daerah, indeks IRBI, dan kerentanan per provinsi',
+  'region.search_ph': 'Cari provinsi...',
+  'region.quick': 'Wilayah cepat',
+  'region.others': '+{n} lainnya',
+  'region.capacity': 'Kapasitas Daerah',
+  'region.hazard_matrix': 'Matriks Bahaya',
+
+  // mitigation
+  'mitig.header': 'Panduan Mitigasi & Kesiapsiagaan',
+  'mitig.sub': 'Langkah praktis sebelum, saat, dan setelah bencana berdasarkan pedoman BNPB/BMKG.',
+  'mitig.tab_eq': 'Gempa Bumi',
+  'mitig.tab_tsu': 'Tsunami (20-20-20)',
+  'mitig.tab_volc': 'Erupsi Gunung Api',
+  'mitig.tab_flood': 'Banjir & Bandang',
+  'mitig.tab_mmi': 'Tabel Skala MMI',
+  'mitig.eq_pre': 'Pra-Bencana',
+  'mitig.eq_during': 'Tanggap Darurat',
+  'mitig.eq_post': 'Pasca-Bencana',
+
+  // footer
+  'footer.integrity': 'Seluruh data seismik dan ancaman bahaya disinkronisasi langsung dari server resmi {bmkg}, {bnpb}, dan {pvmbg} tanpa interpolasi model bahasa atau estimasi berbasis AI.',
+  'footer.about_title': 'Tentang OnheilAlert',
+  'footer.about': 'Platform monitoring bencana Indonesia yang mengutamakan data resmi dan transparansi. Tidak ada AI, tidak ada prediksi mesin, hanya visualisasi data aktual dari BMKG, BNPB, dan PVMBG yang dikemas untuk aksesibilitas publik. Dibangun dengan Next.js, MapLibre GL, dan API Gateway Golang (Fiber).',
+  'footer.sources': 'Sumber Data',
+  'footer.emergency': 'Kontak Darurat',
+  'footer.call_112': 'Panggilan Darurat 112',
+  'footer.bnpb': 'Posko BNPB 117',
+  'footer.basarnas': 'BASARNAS 115',
+  'footer.copy': '© {y} OnheilAlert by The Onheil Foundation. Hak Cipta Dilindungi.',
+  'footer.map_note': 'Peta & Koordinat WGS 84 | Zona Waktu WIB',
+
+  // alert + modal + search
+  'alert.tsunami': 'Potensi Tsunami',
+  'alert.significant': 'Gempa Signifikan',
+  'alert.detail': 'Detail',
+  'alert.dismiss': 'Tutup peringatan',
+  'modal.share': 'Informasi Kebencanaan Resmi: {title} di {loc}. Sumber: {src}. Cek selengkapnya di OnheilAlert.',
+  'modal.time_wib': 'Waktu Indonesia Barat (WIB):',
+  'modal.time_wita': 'Waktu Indonesia Tengah (WITA):',
+  'modal.time_wit': 'Waktu Indonesia Timur (WIT):',
+  'modal.depth': 'Kedalaman',
+  'modal.tsunami_pot': 'Potensi Tsunami',
+  'modal.severity': 'Tingkat Keparahan',
+  'modal.coords': 'Koordinat Episentrum: {c}',
+  'modal.to_map': 'Arahkan Peta ke Titik Ini',
+  'modal.shakemap': 'Peta Guncangan / Shakemap (BMKG)',
+  'modal.felt_area': 'Wilayah yang Merasakan (Skala MMI):',
+  'modal.mmi_note': 'Skala MMI mengukur intensitas getaran yang dirasakan masyarakat di permukaan tanah menurut BMKG.',
+  'modal.mitigation': 'Panduan Mitigasi & Keselamatan BNPB:',
+  'modal.close': 'Tutup',
+  'modal.share_btn': 'Bagikan',
+  'modal.copied': 'Tersalin!',
+  'modal.verified': 'Data diverifikasi oleh: {src}',
+  'modal.bmkg_portal': 'Portal BMKG Resmi',
+  'search.ph': 'Cari lokasi, gunung, atau wilayah...',
+  'search.hint': 'Ketik minimal 2 huruf untuk mencari',
+  'search.loading': 'Mencari...',
+  'search.empty': 'Tidak ada hasil untuk \"{q}\"',
+  'search.province': 'Provinsi',
+  'search.district': 'Kabupaten',
+  'search.earthquake': 'Gempa',
+  'search.volcano': 'Gunung Api',
+
+  // generic
+  'common.loading': 'Memuat...',
+  'common.error': 'Gagal memuat data.',
+  'common.retry': 'Coba lagi',
+};
+
+const en: Dict = {
+  'nav.dashboard': 'Dashboard',
+  'nav.map': 'Map',
+  'nav.volcanoes': 'Volcanoes',
+  'nav.risk': 'Risk',
+  'nav.regions': 'Regions',
+  'nav.mitigation': 'Mitigation',
+  'nav.search': 'Search',
+  'nav.search_kbd': '/',
+  'nav.light': 'Light mode',
+  'nav.dark': 'Dark mode',
+  'nav.refresh': 'Refresh data',
+  'nav.to_dashboard': 'Go to dashboard',
+  'nav.main': 'Main navigation',
+  'nav.lang_id': 'ID',
+  'nav.lang_en': 'EN',
+
+  'hero.subtitle': 'Indonesia disaster monitoring, one place',
+  'hero.desc': 'Official data from BMKG, PVMBG and BNPB InaRISK in a calm, verifiable visual.',
+  'hero.trust': 'Official BMKG, BNPB, PVMBG data',
+  'hero.cta_dashboard': 'Open Dashboard',
+  'hero.cta_map': 'View Map',
+  'hero.source': 'Source: BMKG',
+  'page.peta_title': 'Interactive Disaster Monitoring Map',
+  'page.peta_sub': 'GIS visualization of BMKG seismic, PVMBG, and BNPB InaRISK hazard layers',
+  'page.buka_full': 'Open Fullscreen Mode',
+  'page.volcano_banner_title': 'Volcano Monitor',
+  'page.volcano_banner_desc': '44 volcanoes officially monitored. Track Level I-IV status and latest eruption history.',
+  'page.volcano_cta': 'Open Volcano Monitor',
+  'page.map_full_title': 'Interactive Map of Indonesian Disasters',
+  'page.map_full_sub': 'GIS visualization of BMKG seismic, PVMBG, and InaRISK BNPB hazard layers',
+
+  'stats.latest': 'Latest Quake',
+  'stats.latest_depth': 'depth',
+  'stats.latest_wait': 'Awaiting latest BMKG data',
+  'stats.view_catalog': 'View catalog',
+  'stats.map_shake': 'Shakemap',
+  'stats.total': 'Significant Quakes Total',
+  'stats.total_sub': 'M ≥5.0 & felt',
+  'stats.total_desc': 'BMKG real-time seismic catalog',
+  'stats.volcano': 'Volcanoes on Alert',
+  'stats.volcano_of': 'of {n} monitored',
+  'stats.volcano_names': 'Merapi, Semeru, Ibu, Lewotobi',
+  'stats.risk': 'High-Risk Provinces',
+  'stats.risk_desc': 'Indonesian Disaster Risk Index, BNPB InaRISK',
+  'stats.open_risk': 'Open risk view',
+  'stats.more': '+{n} more',
+
+  'quake.latest_title': 'Latest Earthquake',
+  'quake.bmkg': 'BMKG Indonesia',
+  'quake.tsunami_yes': 'Tsunami Potential',
+  'quake.tsunami_no': 'No Tsunami Potential',
+  'quake.depth': 'Depth',
+  'quake.coords': 'Coordinates',
+  'quake.epi': 'Epicenter',
+  'quake.advisory': 'BMKG Advisory: ',
+  'quake.felt': 'Felt (MMI)',
+  'quake.view_map': 'View on Map',
+  'quake.detail': 'Details & Mitigation',
+  'quake.illus': 'Area illustration',
+  'quake.shakemap': 'BMKG Shakemap',
+  'quake.source_bmkg': 'Source: BMKG',
+  'quake.visual_desc': 'Shakemap helps read shaking distribution. Use the map for distance and mitigation context.',
+  'quake.level_critical': 'Critical',
+  'quake.level_significant': 'Significant',
+  'quake.level_moderate': 'Moderate',
+
+  'volcano.title': 'Indonesia Volcano Monitor',
+  'volcano.sub': 'Monitoring volcanic activity and alert levels (Level I-IV) directly from official sources.',
+  'volcano.refresh': 'Refresh',
+  'volcano.levelI': 'Level I (Normal)',
+  'volcano.levelII': 'Level II (Advisory)',
+  'volcano.levelIII': 'Level III (Watch)',
+  'volcano.levelIV': 'Level IV (Warning)',
+  'volcano.total': 'Total Monitored',
+  'volcano.active': 'active volcanoes',
+  'volcano.recent': 'Recent Eruptions',
+  'volcano.recent_sub': 'Reports last 24h',
+  'volcano.source': 'Data Source',
+  'volcano.official': 'PVMBG / MAGMA ESDM',
+  'volcano.portal': 'Official portal',
+  'volcano.all': 'All ({n})',
+  'volcano.search_ph': 'Search volcano or province',
+  'volcano.no_match': 'No volcanoes match your filters.',
+  'volcano.show_all': 'Show all',
+  'volcano.activity': 'Recent Eruption Activity',
+  'volcano.no_activity': 'No new eruption reports in the last few hours.',
+
+  'list.title': 'Latest Disaster Events',
+  'list.count': '{n} verified records from BMKG & PVMBG',
+  'list.filter_all': 'All',
+  'list.filter_m5': 'Quake M ≥ 5.0',
+  'list.filter_felt': 'Felt',
+  'list.filter_volcano': 'Volcanoes',
+  'list.search_ph': 'Search location, island or volcano name...',
+  'list.mag_all': 'All Magnitudes',
+  'list.mag_4': 'M ≥ 4.0',
+  'list.mag_5': 'M ≥ 5.0 (Significant)',
+  'list.mag_6': 'M ≥ 6.0 (Strong/Damaging)',
+  'list.empty': 'No disaster events match filters',
+  'list.empty_hint': 'Try adjusting search keywords or magnitude range',
+  'list.depth': 'Depth {n} km',
+  'list.felt': 'Felt: {v}',
+  'list.focus_map': 'Focus on Map',
+  'list.detail': 'Details & Mitigation',
+  'list.show_more': 'Show all {n} (+{k} more)',
+  'list.show_less': 'Show less',
+  'list.active_monitor': 'Active Monitoring',
+
+  'map.filter_layer': 'Filter Layers',
+  'map.layer_bencana': 'Disaster Layers',
+  'map.quake_m5': 'Quake M ≥ 5.0 (BMKG)',
+  'map.quake_felt': 'Felt Quakes (MMI)',
+  'map.volcano_active': 'Active Volcanoes (PVMBG)',
+  'map.inarisk': 'InaRISK BNPB Hazard Layer:',
+  'map.no_inarisk': 'No InaRISK Layer',
+  'map.bright': 'Light',
+  'map.dark': 'Dark',
+  'map.satellite': 'Satellite',
+  'map.reset': 'Reset Indonesia view',
+  'map.legend': 'Legend',
+  'map.attrib': 'MapLibre | © CARTO © OpenStreetMap',
+
+  'risk.title': 'Indonesian Disaster Risk Index (IRBI)',
+  'risk.formula': 'Risk = Hazard × Vulnerability × Capacity',
+  'risk.pillars': 'Three pillars: Hazard, Vulnerability, Capacity',
+  'risk.select_hazard': 'Select Hazard',
+  'risk.select_class': 'Risk Class',
+  'risk.count_high': 'High {n}',
+  'risk.count_med': 'Medium {n}',
+  'risk.count_low': 'Low {n}',
+  'risk.group_high': 'High Risk',
+  'risk.group_med': 'Medium Risk',
+  'risk.group_low': 'Low Risk',
+  'risk.no_data': 'No InaRISK data for this filter.',
+
+  'region.title': 'Regional Risk Profile Explorer',
+  'region.sub': 'Regional resilience, IRBI index and vulnerability per province',
+  'region.search_ph': 'Search province...',
+  'region.quick': 'Quick regions',
+  'region.others': '+{n} more',
+  'region.capacity': 'Regional Capacity',
+  'region.hazard_matrix': 'Hazard Matrix',
+
+  'mitig.header': 'Mitigation & Preparedness Guide',
+  'mitig.sub': 'Practical steps before, during and after disasters per BNPB/BMKG guidelines.',
+  'mitig.tab_eq': 'Earthquake',
+  'mitig.tab_tsu': 'Tsunami (20-20-20)',
+  'mitig.tab_volc': 'Volcanic Eruption',
+  'mitig.tab_flood': 'Flood & Flash Flood',
+  'mitig.tab_mmi': 'MMI Scale Table',
+  'mitig.eq_pre': 'Pre-Disaster',
+  'mitig.eq_during': 'Emergency Response',
+  'mitig.eq_post': 'Post-Disaster',
+
+  'footer.integrity': 'All seismic and hazard data is synced directly from official servers of {bmkg}, {bnpb} and {pvmbg} without language-model interpolation or AI estimation.',
+  'footer.about_title': 'About OnheilAlert',
+  'footer.about': 'Indonesia disaster monitoring platform prioritizing official data and transparency. No AI, no machine predictions, just actual data from BMKG, BNPB and PVMBG packaged for public accessibility. Built with Next.js, MapLibre GL and Golang (Fiber) API Gateway.',
+  'footer.sources': 'Data Sources',
+  'footer.emergency': 'Emergency Contacts',
+  'footer.call_112': 'Emergency Call 112',
+  'footer.bnpb': 'BNPB Post 117',
+  'footer.basarnas': 'BASARNAS 115',
+  'footer.copy': '© {y} OnheilAlert by The Onheil Foundation. All Rights Reserved.',
+  'footer.map_note': 'Map & Coordinates WGS 84 | Timezone WIB',
+
+  'alert.tsunami': 'Tsunami Potential',
+  'alert.significant': 'Significant Quake',
+  'alert.detail': 'Details',
+  'alert.dismiss': 'Dismiss alert',
+  'modal.share': 'Official Disaster Info: {title} at {loc}. Source: {src}. See more on OnheilAlert.',
+  'modal.time_wib': 'Western Indonesia Time (WIB):',
+  'modal.time_wita': 'Central Indonesia Time (WITA):',
+  'modal.time_wit': 'Eastern Indonesia Time (WIT):',
+  'modal.depth': 'Depth',
+  'modal.tsunami_pot': 'Tsunami Potential',
+  'modal.severity': 'Severity',
+  'modal.coords': 'Epicenter Coordinates: {c}',
+  'modal.to_map': 'Focus Map on This Point',
+  'modal.shakemap': 'Shake Map / Shakemap (BMKG)',
+  'modal.felt_area': 'Felt Area (MMI Scale):',
+  'modal.mmi_note': 'MMI scale measures shaking intensity felt by people at the surface according to BMKG.',
+  'modal.mitigation': 'BNPB Mitigation & Safety Guide:',
+  'modal.close': 'Close',
+  'modal.share_btn': 'Share',
+  'modal.copied': 'Copied!',
+  'modal.verified': 'Verified by: {src}',
+  'modal.bmkg_portal': 'Official BMKG Portal',
+  'search.ph': 'Search location, volcano or area...',
+  'search.hint': 'Type at least 2 characters to search',
+  'search.loading': 'Searching...',
+  'search.empty': 'No results for \"{q}\"',
+  'search.province': 'Province',
+  'search.district': 'District',
+  'search.earthquake': 'Quake',
+  'search.volcano': 'Volcano',
+
+  'common.loading': 'Loading...',
+  'common.error': 'Failed to load data.',
+  'common.retry': 'Try again',
+};
+
+const dicts: Record<Lang, Dict> = { id, en };
+
+interface Ctx {
+  lang: Lang;
+  setLang: (l: Lang) => void;
+  t: (key: string, vars?: Record<string, string | number>) => string;
+}
+
+const LanguageContext = createContext<Ctx>({
+  lang: 'id',
+  setLang: () => {},
+  t: (k) => k,
+});
+
+export function LanguageProvider({ children }: { children: React.ReactNode }) {
+  const [lang, setLangState] = useState<Lang>('id');
+
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY) as Lang | null;
+    if (saved === 'id' || saved === 'en') {
+      setLangState(saved);
+      document.documentElement.lang = saved;
+    } else {
+      document.documentElement.lang = 'id';
+    }
+  }, []);
+
+  const setLang = useCallback((l: Lang) => {
+    setLangState(l);
+    localStorage.setItem(STORAGE_KEY, l);
+    document.documentElement.lang = l;
+  }, []);
+
+  const t = useCallback((key: string, vars?: Record<string, string | number>) => {
+    const d = dicts[lang] ?? id;
+    let s = d[key] ?? (dicts.en[key] ?? key);
+    if (vars) {
+      for (const [k, v] of Object.entries(vars)) {
+        s = s.replaceAll(`{${k}}`, String(v));
+      }
+    }
+    return s;
+  }, [lang]);
+
+  return (
+    <LanguageContext.Provider value={{ lang, setLang, t }}>
+      {children}
+    </LanguageContext.Provider>
+  );
+}
+
+export function useLanguage() {
+  return useContext(LanguageContext);
+}
+
+export function useT() {
+  return useContext(LanguageContext).t;
+}

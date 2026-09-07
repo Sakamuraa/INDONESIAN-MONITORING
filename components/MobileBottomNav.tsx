@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Activity, Map, Flame, ShieldAlert, Compass, ArrowUp } from 'lucide-react';
+import { useLanguage } from '@/lib/LanguageContext';
 
 interface MobileBottomNavProps {
   activeTab: 'dashboard' | 'map' | 'volcanoes' | 'risk' | 'regions' | 'mitigation';
@@ -15,6 +16,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   siagaVolcanoCount = 0,
 }) => {
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const onScroll = () => setShowScrollTop(window.scrollY > 300);
@@ -23,12 +25,16 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   }, []);
 
   const navItems = [
-    { id: 'dashboard' as const, label: 'Beranda', icon: Activity },
-    { id: 'map' as const, label: 'Peta', icon: Map },
-    { id: 'volcanoes' as const, label: 'Gunung', icon: Flame, badge: siagaVolcanoCount > 0 ? siagaVolcanoCount : undefined },
-    { id: 'risk' as const, label: 'Risiko', icon: ShieldAlert },
-    { id: 'mitigation' as const, label: 'Mitigasi', icon: Compass },
+    { id: 'dashboard' as const, label: t('nav.dashboard'), icon: Activity },
+    { id: 'map' as const, label: t('nav.map'), icon: Map },
+    { id: 'volcanoes' as const, label: t('nav.volcanoes'), icon: Flame, badge: siagaVolcanoCount > 0 ? siagaVolcanoCount : undefined },
+    { id: 'risk' as const, label: t('nav.risk'), icon: ShieldAlert },
+    { id: 'mitigation' as const, label: t('nav.mitigation'), icon: Compass },
   ];
+
+  const triggerHaptic = () => {
+    try { navigator.vibrate?.(10); } catch { /* ignore */ }
+  };
 
   return (
     <>
@@ -54,6 +60,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
               <button
                 key={item.id}
                 onClick={() => {
+                  triggerHaptic();
                   setActiveTab(item.id);
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}

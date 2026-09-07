@@ -20,8 +20,10 @@ import { EarthquakeDetail, VolcanoDetail, Disaster } from '@/types/disaster';
 import { RegionRiskProfile, GisLayerConfig } from '@/types/risk';
 import { OFFICIAL_ACTIVE_VOLCANOES, INARISK_GIS_LAYERS, OFFICIAL_PROVINCE_RISK } from '@/lib/inarisk-data';
 import { Activity, MapPinned, ShieldCheck, ArrowUpRight } from 'lucide-react';
+import { useLanguage } from '@/lib/LanguageContext';
 
 export default function HomePage() {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'map' | 'volcanoes' | 'risk' | 'regions' | 'mitigation'>('dashboard');
 
   const [latestQuake, setLatestQuake] = useState<EarthquakeDetail | null>(null);
@@ -177,33 +179,33 @@ export default function HomePage() {
               <div className="lg:col-span-6 flex flex-col justify-center px-6 py-8 sm:px-8 lg:px-8 lg:py-9">
                 <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-[var(--gh-border)] bg-[var(--gh-surface-raised)] px-2.5 py-1 text-[11px] font-medium text-[var(--gh-text-muted)]">
                   <span className="h-1.5 w-1.5 rounded-full bg-[var(--gh-accent)]" />
-                  BMKG BNPB InaRISK PVMBG
+                  {t('hero.trust')}
                 </span>
                 <h1 className="mt-4 max-w-[18ch] text-4xl font-semibold tracking-tighter leading-none text-[var(--gh-text)] sm:text-[44px] lg:text-5xl">
-                  Pantauan bencana Indonesia, satu tempat
+                  {t('hero.subtitle')}
                 </h1>
                 <p className="mt-3 max-w-[42ch] text-sm leading-relaxed text-[var(--gh-text-muted)]">
-                  Data resmi yang diverifikasi, peta interaktif, dan arahan mitigasi untuk publik.
+                  {t('hero.desc')}
                 </p>
                 <div className="mt-6 flex flex-wrap gap-2">
                   <button
-                    onClick={() => setActiveTab('map')}
+                    onClick={() => setActiveTab('dashboard')}
                     className="inline-flex items-center gap-1.5 rounded-xl bg-[var(--gh-accent)] px-4 py-2 text-xs font-semibold text-white shadow-xs transition hover:opacity-90 active:scale-[0.98]"
                   >
-                    Buka peta pantauan
+                    {t('hero.cta_dashboard')}
                     <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={2} />
                   </button>
                   <button
-                    onClick={() => setActiveTab('mitigation')}
+                    onClick={() => setActiveTab('map')}
                     className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface-raised)] px-4 py-2 text-xs font-semibold text-[var(--gh-text)] transition hover:bg-[var(--gh-btn-hover)] active:scale-[0.98]"
                   >
-                    Panduan mitigasi
+                    {t('hero.cta_map')}
                   </button>
                 </div>
                 <div className="mt-5 flex flex-wrap items-center gap-2 text-[11px] text-[var(--gh-text-subtle)]">
                   <span className="inline-flex items-center gap-1.5 font-mono">
                     <Activity className="h-3 w-3 text-[var(--gh-accent)]" strokeWidth={1.75} />
-                    BMKG realtime 60s
+                    {t('hero.source')} · realtime 60s
                   </span>
                   <span className="h-3 w-px bg-[var(--gh-border)]" />
                   <span className="inline-flex items-center gap-1.5 font-mono">
@@ -277,16 +279,31 @@ export default function HomePage() {
               }}
             />
 
+            {/* Volcano banner */}
+            <section className="flex flex-col gap-3 rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface)] p-5 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h3 className="text-sm font-semibold tracking-tight text-[var(--gh-text)]">{t('page.volcano_banner_title')}</h3>
+                <p className="mt-1 max-w-[60ch] text-xs leading-relaxed text-[var(--gh-text-muted)]">{t('page.volcano_banner_desc')}</p>
+              </div>
+              <button
+                onClick={() => setActiveTab('volcanoes')}
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-[var(--gh-accent)] px-4 py-2 text-xs font-semibold text-white shadow-xs transition hover:opacity-90 active:scale-[0.98]"
+              >
+                {t('page.volcano_cta')}
+                <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={2} />
+              </button>
+            </section>
+
             {/* Map + List — 12-col distinct grid family */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
               <div className="lg:col-span-7">
                 <div className="mb-3">
-                  <h2 className="text-sm font-semibold tracking-tight text-[var(--gh-text)]">Peta pantauan bencana interaktif</h2>
+                  <h2 className="text-sm font-semibold tracking-tight text-[var(--gh-text)]">{t('page.peta_title')}</h2>
                   <p className="mt-1 max-w-[65ch] text-xs leading-relaxed text-[var(--gh-text-muted)]">
-                    Sebaran seismik BMKG, vulkanik PVMBG, dan layer bahaya InaRISK dalam satu peta.
+                    {t('page.peta_sub')}
                   </p>
                   <button onClick={() => setActiveTab('map')} className="mt-2 text-xs font-medium text-[var(--gh-accent)] hover:opacity-90">
-                    Buka mode layar penuh <span aria-hidden>→</span>
+                    {t('page.buka_full')} <span aria-hidden>→</span>
                   </button>
                 </div>
                 <InteractiveMap
@@ -315,9 +332,9 @@ export default function HomePage() {
         {activeTab === 'map' && (
           <div className="space-y-4">
             <div>
-              <h1 className="text-lg font-semibold tracking-tight text-[var(--gh-text)]">Peta interaktif kebencanaan Indonesia</h1>
+              <h1 className="text-lg font-semibold tracking-tight text-[var(--gh-text)]">{t('page.map_full_title')}</h1>
               <p className="mt-1 max-w-[65ch] text-xs leading-relaxed text-[var(--gh-text-muted)]">
-                Visualisasi GIS seismik BMKG, PVMBG, dan layer bahaya InaRISK BNPB.
+                {t('page.map_full_sub')}
               </p>
             </div>
             <InteractiveMap

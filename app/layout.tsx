@@ -1,19 +1,23 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { ThemeProvider } from '@/lib/ThemeContext';
+import { LanguageProvider } from '@/lib/LanguageContext';
 
 export const metadata: Metadata = {
   title: 'OnheilAlert',
-  description: 'OnheilAlert by The Onheil Foundation — platform monitoring dan visualisasi data bencana di Indonesia menggunakan data resmi BMKG, BNPB/InaRISK, dan PVMBG/MAGMA Indonesia.',
+  description:
+    'OnheilAlert by The Onheil Foundation — platform monitoring dan visualisasi data bencana di Indonesia menggunakan data resmi BMKG, BNPB/InaRISK, dan PVMBG/MAGMA Indonesia.',
   openGraph: {
     title: 'OnheilAlert',
-    description: 'OnheilAlert by The Onheil Foundation — platform monitoring dan visualisasi data bencana di Indonesia menggunakan data resmi BMKG, BNPB/InaRISK, dan PVMBG/MAGMA Indonesia.',
+    description:
+      'OnheilAlert by The Onheil Foundation — platform monitoring dan visualisasi data bencana di Indonesia menggunakan data resmi BMKG, BNPB/InaRISK, dan PVMBG/MAGMA Indonesia.',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'OnheilAlert',
-    description: 'OnheilAlert by The Onheil Foundation — platform monitoring dan visualisasi data bencana di Indonesia menggunakan data resmi BMKG, BNPB/InaRISK, dan PVMBG/MAGMA Indonesia.',
+    description:
+      'OnheilAlert by The Onheil Foundation — platform monitoring dan visualisasi data bencana di Indonesia menggunakan data resmi BMKG, BNPB/InaRISK, dan PVMBG/MAGMA Indonesia.',
   },
 };
 
@@ -43,7 +47,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         className="min-h-screen bg-[#0d1117] text-[#f0f6fc] antialiased font-sans transition-colors duration-150 selection:bg-rose-500/30 selection:text-rose-200"
         suppressHydrationWarning
       >
-        <ThemeProvider>{children}</ThemeProvider>
+        <LanguageProvider>
+          <ThemeProvider>{children}</ThemeProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

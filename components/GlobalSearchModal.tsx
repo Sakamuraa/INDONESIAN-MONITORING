@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, X, MapPin, Mountain, Activity, ShieldAlert, ChevronRight } from 'lucide-react';
 import { Disaster } from '@/types/disaster';
+import { useLanguage } from '@/lib/LanguageContext';
 
 interface SearchResultItem {
   type: 'earthquake' | 'volcano' | 'province' | 'district';
@@ -33,6 +34,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResultItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const { t } = useLanguage();
 
   const handleModalClose = () => {
     setQuery('');
@@ -65,7 +67,14 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
 
   const displayedResults = query.trim().length < 2 ? [] : results;
 
-  // Keyboard shortcut listener
+  const typeLabel = (type: string) => {
+    if (type === 'province') return t('search.province');
+    if (type === 'district') return t('search.district');
+    if (type === 'earthquake') return t('search.earthquake');
+    if (type === 'volcano') return t('search.volcano');
+    return type;
+  };
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
@@ -86,12 +95,11 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
         id="global-search-dialog"
         className="w-full max-w-xl rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface)] shadow-2xl overflow-hidden transition-colors duration-150"
       >
-        {/* Search Input Bar */}
         <div className="flex items-center px-4 py-3 border-b border-[var(--gh-border)]">
           <Search className="h-4 w-4 text-[var(--gh-text-muted)] mr-3 shrink-0" strokeWidth={1.75} />
           <input
             type="text"
-            placeholder="Ketik wilayah (misal: Jawa Tengah, Padang, Cianjur) atau bencana..."
+            placeholder={t('search.ph')}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             autoFocus
@@ -116,23 +124,22 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
           </button>
         </div>
 
-        {/* Results Container */}
         <div className="max-h-96 overflow-y-auto p-2 scrollbar-thin">
           {loading && (
             <div className="py-8 text-center text-xs text-[var(--gh-text-muted)]">
-              Mencari data BMKG &amp; InaRISK...
+              {t('search.loading')}
             </div>
           )}
 
           {!loading && displayedResults.length === 0 && query.length >= 2 && (
             <div className="py-8 text-center text-xs text-[var(--gh-text-muted)]">
-              Tidak ditemukan data untuk &quot;{query}&quot;
+              {t('search.empty', { q: query })}
             </div>
           )}
 
           {!loading && query.length < 2 && (
             <div className="py-8 text-center text-xs text-[var(--gh-text-subtle)]">
-              Ketik minimal 2 karakter untuk mencari gempa, gunung api, atau wilayah...
+              {t('search.hint')}
             </div>
           )}
 
@@ -159,7 +166,10 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
                   {item.type === 'district' && <MapPin className="h-3.5 w-3.5 text-blue-500" strokeWidth={1.75} />}
                 </div>
                 <div>
-                  <h4 className="text-xs font-semibold text-[var(--gh-text)]">{item.title}</h4>
+                  <div className="flex items-center gap-1.5">
+                    <h4 className="text-xs font-semibold text-[var(--gh-text)]">{item.title}</h4>
+                    <span className="text-[10px] px-1 py-0.5 rounded bg-[var(--gh-surface-raised)] border border-[var(--gh-border)] text-[var(--gh-text-subtle)]">{typeLabel(item.type)}</span>
+                  </div>
                   <p className="text-[11px] text-[var(--gh-text-muted)]">{item.subtitle}</p>
                 </div>
               </div>

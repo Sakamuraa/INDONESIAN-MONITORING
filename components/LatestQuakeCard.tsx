@@ -4,6 +4,7 @@ import React from 'react';
 import { MapPin, Clock, Gauge, AlertTriangle, ChevronRight, Eye, ShieldCheck } from 'lucide-react';
 import { EarthquakeDetail } from '@/types/disaster';
 import { LatestQuakeCardSkeleton } from '@/components/LoadingSkeletons';
+import { useLanguage } from '@/lib/LanguageContext';
 
 interface LatestQuakeCardProps {
   quake: EarthquakeDetail | null;
@@ -18,6 +19,7 @@ export const LatestQuakeCard: React.FC<LatestQuakeCardProps> = ({
   onViewOnMap,
   onOpenDetails,
 }) => {
+  const { t } = useLanguage();
   if (isLoading || !quake) {
     return <LatestQuakeCardSkeleton />;
   }
@@ -26,7 +28,7 @@ export const LatestQuakeCard: React.FC<LatestQuakeCardProps> = ({
   const isSignificant = mag >= 5.0;
   const isCritical = quake.severity === 'critical' || mag >= 5.5;
 
-  const severityLabel = isCritical ? 'Kritis' : isSignificant ? 'Signifikan' : 'Moderat';
+  const severityLabel = isCritical ? t('quake.level_critical') : isSignificant ? t('quake.level_significant') : t('quake.level_moderate');
   const severityTone = isCritical
     ? 'bg-red-500/10 text-red-500 border-red-500/20'
     : isSignificant
@@ -83,22 +85,22 @@ export const LatestQuakeCard: React.FC<LatestQuakeCardProps> = ({
         <div className="flex items-center gap-2.5">
           <span className="h-2 w-2 shrink-0 rounded-full bg-red-500" aria-hidden />
           <span className="text-xs font-semibold uppercase tracking-wider text-[var(--gh-text)]">
-            Gempa Terkini
+            {t('quake.latest_title')}
           </span>
           <span className="rounded-md border border-[var(--gh-border)] bg-[var(--gh-surface-raised)] px-2 py-0.5 font-mono text-[11px] text-[var(--gh-text-muted)]">
-            BMKG Indonesia
+            {t('quake.bmkg')}
           </span>
         </div>
 
         {quake.tsunamiPotential ? (
           <span className="flex items-center gap-1.5 rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs font-semibold text-red-500">
             <AlertTriangle className="h-3.5 w-3.5" strokeWidth={1.75} />
-            Potensi Tsunami
+            {t('quake.tsunami_yes')}
           </span>
         ) : (
           <span className="flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-600">
             <ShieldCheck className="h-3.5 w-3.5" strokeWidth={1.75} />
-            Tidak Berpotensi Tsunami
+            {t('quake.tsunami_no')}
           </span>
         )}
       </div>
@@ -128,14 +130,14 @@ export const LatestQuakeCard: React.FC<LatestQuakeCardProps> = ({
             <div className="flex items-center gap-2 text-xs text-[var(--gh-text-muted)]">
               <Gauge className="h-3.5 w-3.5 shrink-0 text-[var(--gh-text-subtle)]" strokeWidth={1.75} />
               <span>
-                Kedalaman <strong className="font-mono font-semibold text-[var(--gh-text)]">{quake.depth} km</strong>
+                {t('quake.depth')} <strong className="font-mono font-semibold text-[var(--gh-text)]">{quake.depth} km</strong>
               </span>
             </div>
             {hasCoords && coordLabel && (
               <div className="flex items-center gap-2 text-xs text-[var(--gh-text-muted)]">
                 <MapPin className="h-3.5 w-3.5 shrink-0 text-[var(--gh-text-subtle)]" strokeWidth={1.75} />
                 <span>
-                  Koordinat <span className="font-mono text-[var(--gh-text)]">{coordLabel}</span>
+                  {t('quake.coords')} <span className="font-mono text-[var(--gh-text)]">{coordLabel}</span>
                 </span>
               </div>
             )}
@@ -144,7 +146,7 @@ export const LatestQuakeCard: React.FC<LatestQuakeCardProps> = ({
           {/* Location */}
           <div className="mt-6">
             <span className="text-[11px] font-medium uppercase tracking-wider text-[var(--gh-text-muted)]">
-              Pusat Gempa
+              {t('quake.epi')}
             </span>
             <h3 className="mt-1.5 text-sm font-semibold leading-snug tracking-tight text-[var(--gh-text)]">
               {quake.location}
@@ -152,7 +154,7 @@ export const LatestQuakeCard: React.FC<LatestQuakeCardProps> = ({
 
             {quake.potential && (
               <div className="mt-3 rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface-raised)] p-3 text-xs leading-relaxed text-[var(--gh-text-muted)]">
-                <span className="font-semibold text-[var(--gh-text)]">Arahan BMKG: </span>
+                <span className="font-semibold text-[var(--gh-text)]">{t('quake.advisory')}</span>
                 {quake.potential}
               </div>
             )}
@@ -160,7 +162,7 @@ export const LatestQuakeCard: React.FC<LatestQuakeCardProps> = ({
             {quake.felt && (
               <div className="mt-3 border-t border-[var(--gh-border)] pt-3">
                 <span className="text-[11px] font-medium uppercase tracking-wider text-[var(--gh-text-muted)]">
-                  Dirasakan MMI
+                  {t('quake.felt')}
                 </span>
                 <p className="mt-1 font-mono text-xs leading-relaxed text-[var(--gh-text-muted)]">{quake.felt}</p>
               </div>
@@ -175,14 +177,14 @@ export const LatestQuakeCard: React.FC<LatestQuakeCardProps> = ({
               className="flex items-center gap-1.5 rounded-xl bg-[var(--gh-accent)] px-4 py-2 text-xs font-semibold text-white shadow-xs transition hover:opacity-90 active:scale-[0.98]"
             >
               <Eye className="h-3.5 w-3.5" strokeWidth={1.75} />
-              Lihat di Peta
+              {t('quake.view_map')}
             </button>
             <button
               id="btn-open-latest-quake-details"
               onClick={() => onOpenDetails(quake)}
               className="flex items-center gap-1.5 rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface-raised)] px-4 py-2 text-xs font-semibold text-[var(--gh-text)] shadow-xs transition hover:bg-[var(--gh-border)] active:scale-[0.98]"
             >
-              Detail dan Mitigasi
+              {t('quake.detail')}
               <ChevronRight className="h-3.5 w-3.5 text-[var(--gh-text-muted)]" strokeWidth={1.75} />
             </button>
           </div>
@@ -195,26 +197,26 @@ export const LatestQuakeCard: React.FC<LatestQuakeCardProps> = ({
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={imgSrc}
-                alt={isFallback ? 'Ilustrasi peta wilayah gempa' : 'Peta Shakemap BMKG'}
+                alt={isFallback ? t('quake.illus') : t('quake.shakemap')}
                 className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
                 loading="lazy"
                 onError={() => setImgError(true)}
               />
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-black/0 to-transparent opacity-60" />
               <span className="absolute bottom-2 left-2 rounded-md bg-black/60 px-2 py-0.5 font-mono text-[10px] font-medium tracking-wide text-white backdrop-blur">
-                {isFallback ? 'Ilustrasi wilayah' : 'Shakemap BMKG'}
+                {isFallback ? t('quake.illus') : t('quake.shakemap')}
               </span>
             </div>
             <div className="flex items-center justify-between px-3 py-2.5">
               <span className="font-mono text-[11px] text-[var(--gh-text-muted)]">
                 {quake.latitude?.toFixed(2)}, {quake.longitude?.toFixed(2)}
               </span>
-              <span className="text-[11px] font-medium text-[var(--gh-text-muted)]">Sumber BMKG</span>
+              <span className="text-[11px] font-medium text-[var(--gh-text-muted)]">{t('quake.source_bmkg')}</span>
             </div>
           </div>
 
           <p className="mt-3 text-xs leading-relaxed text-[var(--gh-text-muted)]">
-            Visual shakemap mempermudah pembacaan sebaran guncangan. Gunakan peta untuk konteks jarak dan mitigasi.
+            {t('quake.visual_desc')}
           </p>
         </div>
       </div>

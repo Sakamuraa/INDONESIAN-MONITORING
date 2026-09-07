@@ -10,6 +10,7 @@ import {
 import { RegionRiskProfile } from '@/types/risk';
 import { OFFICIAL_DISTRICT_RISK, DistrictRiskProfile } from '@/lib/inarisk-data';
 import { RegionExplorerSkeleton } from '@/components/LoadingSkeletons';
+import { useLanguage } from '@/lib/LanguageContext';
 
 interface RegionExplorerViewProps {
   provinces: RegionRiskProfile[];
@@ -35,6 +36,7 @@ export const RegionExplorerView: React.FC<RegionExplorerViewProps> = ({
   isLoading = false,
   onFocusMap,
 }) => {
+  const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProvince, setSelectedProvince] = useState<RegionRiskProfile>(provinces[0]);
   const [selectedDistrict, setSelectedDistrict] = useState<DistrictRiskProfile | null>(null);
@@ -66,10 +68,10 @@ export const RegionExplorerView: React.FC<RegionExplorerViewProps> = ({
             <Compass className="h-5 w-5 text-[var(--gh-accent)] flex-shrink-0" strokeWidth={1.75} />
             <div>
               <h2 className="text-base sm:text-lg font-bold text-[var(--gh-text)] leading-tight">
-                Eksplorasi Profil Risiko Wilayah
+                {t('region.title')}
               </h2>
               <p className="text-xs text-[var(--gh-text-muted)]">
-                Profil ketahanan daerah, indeks IRBI, dan kerentanan per provinsi
+                {t('region.sub')}
               </p>
             </div>
           </div>
@@ -77,7 +79,7 @@ export const RegionExplorerView: React.FC<RegionExplorerViewProps> = ({
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--gh-text-subtle)]" strokeWidth={1.75} />
             <input
               type="text"
-              placeholder="Cari provinsi..."
+              placeholder={t('region.search_ph')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full rounded-md border border-[var(--gh-border)] bg-[var(--gh-surface-raised)] pl-9 pr-3 py-2 text-xs text-[var(--gh-text)] placeholder-[var(--gh-text-subtle)] focus:border-[var(--gh-border-active)] focus:outline-none transition"
@@ -86,7 +88,8 @@ export const RegionExplorerView: React.FC<RegionExplorerViewProps> = ({
         </div>
 
         {/* Top province quick-select — max 4, no pill spam */}
-        <div className="mt-3 flex flex-wrap gap-1.5">
+        <div className="mt-3 flex flex-wrap gap-1.5 items-center">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--gh-text-subtle)] mr-1">{t('region.quick')}</span>
           {filteredProvinces.slice(0, TOP_PROVINCES_COUNT).map((p) => (
             <button
               key={p.provinceCode}
@@ -105,7 +108,7 @@ export const RegionExplorerView: React.FC<RegionExplorerViewProps> = ({
           ))}
           {filteredProvinces.length > TOP_PROVINCES_COUNT && (
             <span className="text-[11px] text-[var(--gh-text-subtle)] self-center ml-1">
-              +{filteredProvinces.length - TOP_PROVINCES_COUNT} lainnya
+              {t('region.others', { n: filteredProvinces.length - TOP_PROVINCES_COUNT })}
             </span>
           )}
         </div>
@@ -153,7 +156,7 @@ export const RegionExplorerView: React.FC<RegionExplorerViewProps> = ({
                 </div>
                 <div className="h-3 w-px bg-[var(--gh-border)]" />
                 <div>
-                  <span className="text-[var(--gh-text-muted)]">Kapasitas: </span>
+                  <span className="text-[var(--gh-text-muted)]">{t('region.capacity')}: </span>
                   <span className="font-mono font-semibold text-[var(--gh-text)]">{activeCapacity}</span>
                 </div>
                 <div className="h-3 w-px bg-[var(--gh-border)]" />
@@ -219,7 +222,7 @@ export const RegionExplorerView: React.FC<RegionExplorerViewProps> = ({
             {/* Hazard matrix — no center-aligned pill spam, left-aligned list */}
             <div className="rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface)] p-4">
               <h4 className="text-[11px] font-semibold uppercase tracking-wider text-[var(--gh-text-muted)] mb-3">
-                Matriks Bahaya &mdash; {activeName}
+                {t('region.hazard_matrix')} &mdash; {activeName}
               </h4>
               <div className="space-y-1.5">
                 {Object.entries(activeBreakdown).map(([k, v]) => (

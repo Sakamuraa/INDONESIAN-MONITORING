@@ -16,19 +16,13 @@ import {
 import { Volcano, VolcanicActivity, VolcanoStatusSummary } from '@/types/volcano';
 import { fetchVolcanoes, fetchVolcanoStatus, fetchVolcanicActivities } from '@/lib/volcano-client';
 import { VolcanoMonitorSkeleton } from '@/components/LoadingSkeletons';
+import { useLanguage } from '@/lib/LanguageContext';
 
 interface VolcanoMonitorViewProps {
   onFocusMap?: (lat: number, lng: number, title?: string) => void;
 }
 
 type LevelKey = 'awas' | 'siaga' | 'waspada' | 'normal';
-
-const LEVELS: { key: LevelKey; rank: number; short: string; label: string; color: string; soft: string }[] = [
-  { key: 'normal', rank: 1, short: 'I', label: 'Normal', color: 'var(--gh-success)', soft: 'rgba(63,185,80,0.12)' },
-  { key: 'waspada', rank: 2, short: 'II', label: 'Waspada', color: 'var(--gh-warning)', soft: 'rgba(210,153,34,0.12)' },
-  { key: 'siaga', rank: 3, short: 'III', label: 'Siaga', color: '#d17a38', soft: 'rgba(209,122,56,0.12)' },
-  { key: 'awas', rank: 4, short: 'IV', label: 'Awas', color: 'var(--gh-danger)', soft: 'rgba(248,81,73,0.12)' },
-];
 
 function levelOf(status: string): LevelKey {
   const s = status.toLowerCase();
@@ -39,6 +33,7 @@ function levelOf(status: string): LevelKey {
 }
 
 export const VolcanoMonitorView: React.FC<VolcanoMonitorViewProps> = ({ onFocusMap }) => {
+  const { t } = useLanguage();
   const [volcanoes, setVolcanoes] = useState<Volcano[]>([]);
   const [summary, setSummary] = useState<VolcanoStatusSummary | null>(null);
   const [activities, setActivities] = useState<VolcanicActivity[]>([]);
@@ -50,6 +45,13 @@ export const VolcanoMonitorView: React.FC<VolcanoMonitorViewProps> = ({ onFocusM
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+
+  const LEVELS: { key: LevelKey; rank: number; short: string; label: string; color: string; soft: string }[] = [
+    { key: 'normal', rank: 1, short: 'I', label: t('volcano.levelI'), color: 'var(--gh-success)', soft: 'rgba(63,185,80,0.12)' },
+    { key: 'waspada', rank: 2, short: 'II', label: t('volcano.levelII'), color: 'var(--gh-warning)', soft: 'rgba(210,153,34,0.12)' },
+    { key: 'siaga', rank: 3, short: 'III', label: t('volcano.levelIII'), color: '#d17a38', soft: 'rgba(209,122,56,0.12)' },
+    { key: 'awas', rank: 4, short: 'IV', label: t('volcano.levelIV'), color: 'var(--gh-danger)', soft: 'rgba(248,81,73,0.12)' },
+  ];
 
   const finishBatch = useCallback(
     (volcanoRes: PromiseSettledResult<{ volcanoes: Volcano[] }>, statusRes: PromiseSettledResult<VolcanoStatusSummary>, actRes: PromiseSettledResult<VolcanicActivity[]>, pending: boolean) => {
@@ -119,12 +121,10 @@ export const VolcanoMonitorView: React.FC<VolcanoMonitorViewProps> = ({ onFocusM
         (statusFilter === 'siaga' && v.status.toLowerCase().includes('siaga')) ||
         (statusFilter === 'waspada' && v.status.toLowerCase().includes('waspada')) ||
         (statusFilter === 'normal' && v.status.toLowerCase().includes('normal'));
-
       const matchesSearch =
         !searchQuery.trim() ||
         v.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         v.province.toLowerCase().includes(searchQuery.toLowerCase());
-
       return matchesFilter && matchesSearch;
     })
     .sort((a, b) => {
@@ -160,10 +160,10 @@ export const VolcanoMonitorView: React.FC<VolcanoMonitorViewProps> = ({ onFocusM
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-lg font-semibold text-[var(--gh-text)] tracking-tight">
-            Volcano Monitor Indonesia
+            {t('volcano.title')}
           </h1>
           <p className="mt-1 text-sm text-[var(--gh-text-muted)]">
-            Pemantauan aktivitas vulkanik dan status peringatan (Level I-IV) langsung dari sumber resmi.
+            {t('volcano.sub')}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -181,7 +181,7 @@ export const VolcanoMonitorView: React.FC<VolcanoMonitorViewProps> = ({ onFocusM
               className={`h-4 w-4 text-[var(--gh-text-muted)] ${isRefreshing ? 'animate-spin' : ''}`}
               strokeWidth={1.75}
             />
-            Perbarui
+            {t('volcano.refresh')}
           </button>
         </div>
       </header>
@@ -216,9 +216,6 @@ export const VolcanoMonitorView: React.FC<VolcanoMonitorViewProps> = ({ onFocusM
             >
               <div className="flex items-baseline justify-between gap-2">
                 <span className="text-sm font-semibold" style={{ color: active ? lvl.color : 'var(--gh-text)' }}>
-                  Level {lvl.short}
-                </span>
-                <span className="text-xs" style={{ color: lvl.color }}>
                   {lvl.label}
                 </span>
               </div>
@@ -243,18 +240,18 @@ export const VolcanoMonitorView: React.FC<VolcanoMonitorViewProps> = ({ onFocusM
       <section aria-label="Ringkasan pemantauan" className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div className="relative overflow-hidden rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface)] p-5">
           <div className="absolute right-0 top-0 h-full w-24 bg-gradient-to-l from-[var(--gh-accent)]/10 to-transparent" />
-          <div className="text-xs text-[var(--gh-text-muted)]">Total Dipantau</div>
+          <div className="text-xs text-[var(--gh-text-muted)]">{t('volcano.total')}</div>
           <div className="mt-1 text-3xl font-semibold text-[var(--gh-accent)] font-mono tabular-nums">
             {totalMonitored}
           </div>
           <div className="mt-2 flex items-center gap-1.5 text-xs text-[var(--gh-text-subtle)]">
             <Mountain className="h-3.5 w-3.5" strokeWidth={1.75} />
-            Gunung api aktif
+            {t('volcano.active')}
           </div>
         </div>
 
         <div className="flex flex-col justify-between rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface)] p-5">
-          <div className="text-xs text-[var(--gh-text-muted)]">Erupsi Terkini</div>
+          <div className="text-xs text-[var(--gh-text-muted)]">{t('volcano.recent')}</div>
           <div className="flex items-end justify-between gap-2">
             <div className="text-3xl font-semibold text-[var(--gh-text)] font-mono tabular-nums">
               {activities.length}
@@ -264,19 +261,19 @@ export const VolcanoMonitorView: React.FC<VolcanoMonitorViewProps> = ({ onFocusM
               Live
             </span>
           </div>
-          <div className="text-xs text-[var(--gh-text-subtle)]">Laporan 24 jam terakhir</div>
+          <div className="text-xs text-[var(--gh-text-subtle)]">{t('volcano.recent_sub')}</div>
         </div>
 
         <div className="flex flex-col justify-between rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface)] p-5">
-          <div className="text-xs text-[var(--gh-text-muted)]">Sumber Data</div>
-          <div className="text-sm font-semibold text-[var(--gh-text)]">PVMBG / MAGMA ESDM</div>
+          <div className="text-xs text-[var(--gh-text-muted)]">{t('volcano.source')}</div>
+          <div className="text-sm font-semibold text-[var(--gh-text)]">{t('volcano.official')}</div>
           <a
             href="https://magma.esdm.go.id"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--gh-accent)] hover:underline"
           >
-            Portal resmi <ExternalLink className="h-3 w-3" strokeWidth={1.75} />
+            {t('volcano.portal')} <ExternalLink className="h-3 w-3" strokeWidth={1.75} />
           </a>
         </div>
       </section>
@@ -304,7 +301,7 @@ export const VolcanoMonitorView: React.FC<VolcanoMonitorViewProps> = ({ onFocusM
                 }`}
               >
                 {lvl && active && <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: lvl.color }} />}
-                {key === 'all' ? `Semua (${countsForRow.all})` : `${lvl!.label} (${countsForRow[key as LevelKey]})`}
+                {key === 'all' ? t('volcano.all', { n: countsForRow.all }) : `${lvl!.label} (${countsForRow[key as LevelKey]})`}
               </button>
             );
           })}
@@ -316,7 +313,7 @@ export const VolcanoMonitorView: React.FC<VolcanoMonitorViewProps> = ({ onFocusM
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Cari gunung atau provinsi"
+            placeholder={t('volcano.search_ph')}
             className="w-full rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface)] py-2 pl-9 pr-8 text-sm text-[var(--gh-text)] placeholder-[var(--gh-text-subtle)] transition focus:border-[var(--gh-border-active)] focus:outline-none"
           />
           {searchQuery && (
@@ -338,7 +335,7 @@ export const VolcanoMonitorView: React.FC<VolcanoMonitorViewProps> = ({ onFocusM
             <div className="rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface)] p-10 text-center">
               <Info className="mx-auto h-6 w-6 text-[var(--gh-text-subtle)]" strokeWidth={1.75} />
               <p className="mt-3 text-sm font-medium text-[var(--gh-text)]">
-                Tidak ada gunung api yang cocok dengan kriteria pencarian.
+                {t('volcano.no_match')}
               </p>
               <button
                 onClick={() => {
@@ -347,7 +344,7 @@ export const VolcanoMonitorView: React.FC<VolcanoMonitorViewProps> = ({ onFocusM
                 }}
                 className="mt-4 text-sm font-medium text-[var(--gh-accent)] hover:underline"
               >
-                Tampilkan semua
+                {t('volcano.show_all')}
               </button>
             </div>
           ) : (
@@ -371,19 +368,27 @@ export const VolcanoMonitorView: React.FC<VolcanoMonitorViewProps> = ({ onFocusM
 
         {/* Right: activity feed as vertical timeline */}
         <aside className="space-y-4">
-          <h2 className="text-sm font-semibold text-[var(--gh-text)]">Aktivitas Erupsi Terkini</h2>
+          <h2 className="text-sm font-semibold text-[var(--gh-text)]">{t('volcano.activity')}</h2>
           <div className="rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface)] p-5 max-h-[720px] overflow-y-auto">
             {activities.length === 0 ? (
               <p className="text-xs text-[var(--gh-text-muted)]">
-                Tidak ada laporan erupsi baru dalam beberapa jam terakhir.
+                {t('volcano.no_activity')}
               </p>
             ) : (
               <ol className="relative space-y-5 border-l border-[var(--gh-border)] pl-5">
-                {activities.map((act) => (
+                {activities.map((act) => {
+                  const lvlColor = (() => {
+                    const k = levelOf(act.status);
+                    if (k === 'awas') return 'var(--gh-danger)';
+                    if (k === 'siaga') return '#d17a38';
+                    if (k === 'waspada') return 'var(--gh-warning)';
+                    return 'var(--gh-success)';
+                  })();
+                  return (
                   <li key={act.id} className="relative">
                     <span
                       className="absolute -left-[23px] top-1.5 h-2 w-2 rounded-full border-2 border-[var(--gh-surface)]"
-                      style={{ backgroundColor: LEVELS.find((l) => l.key === levelOf(act.status))?.color ?? 'var(--gh-text-muted)' }}
+                      style={{ backgroundColor: lvlColor }}
                     />
                     <div className="flex items-center justify-between gap-2">
                       <span className="font-semibold text-sm text-[var(--gh-text)]">{act.volcanoName}</span>
@@ -420,7 +425,8 @@ export const VolcanoMonitorView: React.FC<VolcanoMonitorViewProps> = ({ onFocusM
                       )}
                     </div>
                   </li>
-                ))}
+                  );
+                })}
               </ol>
             )}
           </div>
@@ -437,7 +443,17 @@ function VolcanoHero({
   volcano: Volcano;
   onFocusMap?: (lat: number, lng: number, title?: string) => void;
 }) {
-  const lvl = LEVELS.find((l) => l.key === levelOf(volcano.status))!;
+  const { t } = useLanguage();
+  const lvl = (() => {
+    const k = levelOf(volcano.status);
+    const map: Record<LevelKey, { label: string; color: string; soft: string }> = {
+      normal: { label: t('volcano.levelI'), color: 'var(--gh-success)', soft: 'rgba(63,185,80,0.12)' },
+      waspada: { label: t('volcano.levelII'), color: 'var(--gh-warning)', soft: 'rgba(210,153,34,0.12)' },
+      siaga: { label: t('volcano.levelIII'), color: '#d17a38', soft: 'rgba(209,122,56,0.12)' },
+      awas: { label: t('volcano.levelIV'), color: 'var(--gh-danger)', soft: 'rgba(248,81,73,0.12)' },
+    };
+    return map[k];
+  })();
   return (
     <article
       className="relative overflow-hidden rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface)] p-6"
@@ -470,7 +486,7 @@ function VolcanoHero({
             className="rounded-lg px-3 py-1 text-sm font-semibold"
             style={{ backgroundColor: lvl.soft, color: lvl.color }}
           >
-            Level {lvl.short} ({lvl.label})
+            {lvl.label}
           </span>
           <div className="flex items-center gap-2">
             {volcano.latitude && volcano.longitude && onFocusMap && (
@@ -506,7 +522,17 @@ function VolcanoTile({
   volcano: Volcano;
   onFocusMap?: (lat: number, lng: number, title?: string) => void;
 }) {
-  const lvl = LEVELS.find((l) => l.key === levelOf(volcano.status))!;
+  const { t } = useLanguage();
+  const lvl = (() => {
+    const k = levelOf(volcano.status);
+    const map: Record<LevelKey, { label: string; color: string; soft: string }> = {
+      normal: { label: t('volcano.levelI'), color: 'var(--gh-success)', soft: 'rgba(63,185,80,0.12)' },
+      waspada: { label: t('volcano.levelII'), color: 'var(--gh-warning)', soft: 'rgba(210,153,34,0.12)' },
+      siaga: { label: t('volcano.levelIII'), color: '#d17a38', soft: 'rgba(209,122,56,0.12)' },
+      awas: { label: t('volcano.levelIV'), color: 'var(--gh-danger)', soft: 'rgba(248,81,73,0.12)' },
+    };
+    return map[k];
+  })();
   return (
     <article className="group flex flex-col justify-between rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface)] p-4 transition hover:border-[var(--gh-border-active)] hover:bg-[var(--gh-surface-raised)]">
       <div>

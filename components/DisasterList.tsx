@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { EarthquakeDetail, VolcanoDetail, Disaster } from '@/types/disaster';
 import { DisasterListSkeleton } from '@/components/LoadingSkeletons';
+import { useLanguage } from '@/lib/LanguageContext';
 
 interface DisasterListProps {
   earthquakes: EarthquakeDetail[];
@@ -58,6 +59,7 @@ export const DisasterList: React.FC<DisasterListProps> = ({
   onFocusMap,
   onSelectDisaster,
 }) => {
+  const { t } = useLanguage();
   const [filterType, setFilterType] = useState<FilterType>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [minMagnitude, setMinMagnitude] = useState<number>(0);
@@ -185,10 +187,10 @@ export const DisasterList: React.FC<DisasterListProps> = ({
   if (isLoading) return <DisasterListSkeleton />;
 
   const filterOpts: { id: FilterType; label: string }[] = [
-    { id: 'all', label: 'Semua' },
-    { id: 'quake-m5', label: 'M ≥ 5.0' },
-    { id: 'quake-felt', label: 'Dirasakan' },
-    { id: 'volcano', label: 'Gunung Api' },
+    { id: 'all', label: t('list.filter_all') },
+    { id: 'quake-m5', label: t('list.filter_m5') },
+    { id: 'quake-felt', label: t('list.filter_felt') },
+    { id: 'volcano', label: t('list.filter_volcano') },
   ];
 
   return (
@@ -201,14 +203,14 @@ export const DisasterList: React.FC<DisasterListProps> = ({
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-widest text-[var(--gh-text-subtle)]">
-              Pemantauan Aktif
+              {t('list.active_monitor')}
             </p>
             <h2 className="mt-0.5 flex items-center gap-2 text-sm font-semibold text-[var(--gh-text)]">
               <Filter className="h-4 w-4 text-rose-500" strokeWidth={1.75} />
-              Daftar Peristiwa Terkini
+              {t('list.title')}
             </h2>
             <p className="text-xs text-[var(--gh-text-muted)]">
-              {filteredItems.length} rekaman terverifikasi · BMKG & PVMBG
+              {t('list.count', { n: filteredItems.length })}
             </p>
           </div>
 
@@ -238,7 +240,7 @@ export const DisasterList: React.FC<DisasterListProps> = ({
           <div className="relative flex-1">
             <input
               type="text"
-              placeholder="Cari lokasi, pulau, atau nama gunung…"
+              placeholder={t('list.search_ph')}
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
@@ -256,10 +258,10 @@ export const DisasterList: React.FC<DisasterListProps> = ({
               }}
               className="rounded-xl border border-[var(--gh-border)] bg-[var(--gh-bg)] px-3 py-2 text-xs text-[var(--gh-text)] focus:border-[var(--gh-border-active)] focus:outline-none transition shadow-xs sm:w-48"
             >
-              <option value={0}>Semua Magnitudo</option>
-              <option value={4}>M ≥ 4.0</option>
-              <option value={5}>M ≥ 5.0 Signifikan</option>
-              <option value={6}>M ≥ 6.0 Kuat</option>
+              <option value={0}>{t('list.mag_all')}</option>
+              <option value={4}>{t('list.mag_4')}</option>
+              <option value={5}>{t('list.mag_5')}</option>
+              <option value={6}>{t('list.mag_6')}</option>
             </select>
           )}
         </div>
@@ -269,8 +271,8 @@ export const DisasterList: React.FC<DisasterListProps> = ({
       {filteredItems.length === 0 ? (
         <div className="mt-6 rounded-xl border border-dashed border-[var(--gh-border)] bg-[var(--gh-surface-raised)] py-12 text-center">
           <AlertTriangle className="mx-auto h-7 w-7 text-[var(--gh-text-subtle)]" strokeWidth={1.5} />
-          <p className="mt-2 text-sm font-medium text-[var(--gh-text-muted)]">Tidak ada peristiwa sesuai filter</p>
-          <p className="text-xs text-[var(--gh-text-subtle)]">Sesuaikan kata kunci atau rentang magnitudo</p>
+          <p className="mt-2 text-sm font-medium text-[var(--gh-text-muted)]">{t('list.empty')}</p>
+          <p className="text-xs text-[var(--gh-text-subtle)]">{t('list.empty_hint')}</p>
         </div>
       ) : (
         <div className="mt-6 space-y-6">
@@ -306,7 +308,7 @@ export const DisasterList: React.FC<DisasterListProps> = ({
                           {item.depth !== undefined && (
                             <span className="inline-flex items-center gap-1">
                               <Gauge className="h-3 w-3 text-[var(--gh-text-subtle)]" strokeWidth={1.75} />
-                              {item.depth} km
+                              {t('list.depth', { n: item.depth })}
                             </span>
                           )}
                           <span className="inline-flex items-center gap-1">
@@ -316,7 +318,7 @@ export const DisasterList: React.FC<DisasterListProps> = ({
                         </div>
                         {item.felt && (
                           <p className="mt-2 rounded-lg border border-[var(--gh-border)] bg-[var(--gh-bg)] px-2 py-1 text-xs font-mono text-amber-600">
-                            Dirasakan: {item.felt}
+                            {t('list.felt', { v: item.felt })}
                           </p>
                         )}
                       </div>
@@ -330,13 +332,13 @@ export const DisasterList: React.FC<DisasterListProps> = ({
                           onClick={() => onFocusMap(item.lat, item.lng, item.title)}
                           className="inline-flex items-center gap-1 rounded-lg border border-[var(--gh-border)] bg-[var(--gh-bg)] px-2.5 py-1 text-xs text-[var(--gh-text-muted)] hover:text-[var(--gh-text)] hover:border-[var(--gh-border-active)] transition"
                         >
-                          <Eye className="h-3 w-3" strokeWidth={1.75} /> Peta
+                          <Eye className="h-3 w-3" strokeWidth={1.75} /> {t('list.focus_map')}
                         </button>
                         <button
                           onClick={() => handleSelect(item)}
                           className="inline-flex items-center gap-1 rounded-lg bg-[#238636] px-2.5 py-1 text-xs font-medium text-white hover:bg-[#2ea043] transition shadow-xs"
                         >
-                          Detail <ChevronRight className="h-3 w-3" strokeWidth={1.75} />
+                          {t('list.detail')} <ChevronRight className="h-3 w-3" strokeWidth={1.75} />
                         </button>
                       </div>
                     </div>
@@ -397,10 +399,10 @@ export const DisasterList: React.FC<DisasterListProps> = ({
                         </div>
                         <p className="mt-0.5 truncate text-[11px] text-[var(--gh-text-muted)]">
                           {item.location} · {item.time}
-                          {item.depth !== undefined ? ` · ${item.depth} km` : ''}
+                          {item.depth !== undefined ? ` · ${t('list.depth', { n: item.depth })}` : ''}
                         </p>
                         {item.felt && (
-                          <p className="mt-1 truncate text-[11px] font-mono text-amber-600">{item.felt}</p>
+                          <p className="mt-1 truncate text-[11px] font-mono text-amber-600">{t('list.felt', { v: item.felt })}</p>
                         )}
                       </div>
                     </div>
@@ -409,7 +411,7 @@ export const DisasterList: React.FC<DisasterListProps> = ({
                       <div className="flex gap-1">
                         <button
                           onClick={() => onFocusMap(item.lat, item.lng, item.title)}
-                          aria-label={`Fokus peta ${item.title}`}
+                          aria-label={`${t('list.focus_map')} ${item.title}`}
                           className="rounded-md border border-[var(--gh-border)] bg-[var(--gh-bg)] p-1 text-[var(--gh-text-muted)] hover:text-[var(--gh-text)] hover:border-[var(--gh-border-active)] transition"
                         >
                           <Eye className="h-3 w-3" strokeWidth={1.75} />
@@ -418,7 +420,7 @@ export const DisasterList: React.FC<DisasterListProps> = ({
                           onClick={() => handleSelect(item)}
                           className="inline-flex items-center gap-0.5 rounded-md bg-[var(--gh-bg)] border border-[var(--gh-border)] px-2 py-1 text-[11px] font-medium text-[var(--gh-text)] hover:border-[var(--gh-border-active)] transition"
                         >
-                          Detail <ChevronRight className="h-3 w-3" strokeWidth={1.75} />
+                          {t('list.detail')} <ChevronRight className="h-3 w-3" strokeWidth={1.75} />
                         </button>
                       </div>
                     </div>
@@ -435,9 +437,9 @@ export const DisasterList: React.FC<DisasterListProps> = ({
               className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface-raised)] py-2.5 text-xs font-medium text-[var(--gh-text-muted)] hover:text-[var(--gh-text)] hover:border-[var(--gh-border-active)] hover:bg-[var(--gh-bg)] transition"
             >
               {expanded ? (
-                <>Tampilkan lebih sedikit <ChevronDown className="h-3.5 w-3.5 rotate-180 transition-transform" strokeWidth={1.75} /></>
+                <>{t('list.show_less')} <ChevronDown className="h-3.5 w-3.5 rotate-180 transition-transform" strokeWidth={1.75} /></>
               ) : (
-                <>Lihat semua {filteredItems.length} peristiwa <span className="text-[var(--gh-text-subtle)]">(+{hiddenCount} lagi)</span> <ChevronDown className="h-3.5 w-3.5 transition-transform" strokeWidth={1.75} /></>
+                <>{t('list.show_more', { n: filteredItems.length, k: hiddenCount })} <ChevronDown className="h-3.5 w-3.5 transition-transform" strokeWidth={1.75} /></>
               )}
             </button>
           )}

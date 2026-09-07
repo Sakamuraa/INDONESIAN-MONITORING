@@ -5,6 +5,7 @@ import { Activity, Flame, ShieldAlert, Mountain, ArrowUpRight } from 'lucide-rea
 import { EarthquakeDetail, VolcanoDetail } from '@/types/disaster';
 import { RegionRiskProfile } from '@/types/risk';
 import { StatsOverviewSkeleton } from '@/components/LoadingSkeletons';
+import { useLanguage } from '@/lib/LanguageContext';
 
 interface StatsOverviewProps {
   latestQuake: EarthquakeDetail | null;
@@ -27,6 +28,7 @@ export const StatsOverview: React.FC<StatsOverviewProps> = ({
   onOpenVolcanoTab,
   onOpenRiskTab,
 }) => {
+  const { t } = useLanguage();
   if (isLoading) return <StatsOverviewSkeleton />;
 
   const activeAlertVolcanoes = volcanoes.filter((v) => {
@@ -53,7 +55,7 @@ export const StatsOverview: React.FC<StatsOverviewProps> = ({
             <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-[var(--gh-border)] bg-[var(--gh-surface-raised)] text-[var(--gh-accent)]">
               <Activity className="h-3.5 w-3.5" strokeWidth={1.75} />
             </span>
-            <span className="text-xs font-medium text-[var(--gh-text-muted)]">Gempa Terkini</span>
+            <span className="text-xs font-medium text-[var(--gh-text-muted)]">{t('stats.latest')}</span>
             <span className="ml-auto inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--gh-text-subtle)]">
               <span className="h-1.5 w-1.5 rounded-full bg-[var(--gh-success)]" />
               BMKG
@@ -65,12 +67,12 @@ export const StatsOverview: React.FC<StatsOverviewProps> = ({
               {latestQuake ? `M ${latestQuake.magnitude}` : 'M --'}
             </span>
             <span className="text-sm font-medium text-[var(--gh-text-muted)]">
-              {latestQuake ? `${latestQuake.depth ?? 0} km` : '-- km'} kedalaman
+              {latestQuake ? `${latestQuake.depth ?? 0} km ${t('stats.latest_depth')}` : `-- km ${t('stats.latest_depth')}`}
             </span>
           </div>
 
           <p className="relative mt-2 line-clamp-1 max-w-[48ch] text-sm leading-relaxed text-[var(--gh-text-muted)]">
-            {latestQuake?.location || 'Menunggu data BMKG terbaru'}
+            {latestQuake?.location || t('stats.latest_wait')}
           </p>
           <p className="relative mt-1 text-[11px] text-[var(--gh-text-subtle)]">
             {latestQuake?.tanggal || ''}
@@ -78,13 +80,12 @@ export const StatsOverview: React.FC<StatsOverviewProps> = ({
           </p>
 
           <span className="relative mt-auto pt-4 inline-flex items-center gap-1 text-xs font-medium text-[var(--gh-accent)]">
-            Lihat katalog
+            {t('stats.view_catalog')}
             <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" strokeWidth={2} />
           </span>
         </div>
 
-        {/* right asset — real visual, dark editorial */
-        }
+        {/* right asset — real visual, dark editorial */}
         <div className="relative hidden w-[190px] shrink-0 overflow-hidden border-l border-[var(--gh-border)] sm:block">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -98,7 +99,7 @@ export const StatsOverview: React.FC<StatsOverviewProps> = ({
           />
           <div className="absolute inset-0 bg-gradient-to-r from-[var(--gh-surface)] via-[var(--gh-surface)]/20 to-transparent" />
           <span className="absolute bottom-2 left-2 font-mono text-[10px] text-[var(--gh-text-muted)]">
-            {latestQuake?.lintang || 'Peta guncangan'}
+            {latestQuake?.lintang || t('stats.map_shake')}
           </span>
         </div>
       </button>
@@ -111,16 +112,16 @@ export const StatsOverview: React.FC<StatsOverviewProps> = ({
       >
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(340px_220px_at_85%_0%,var(--gh-accent-soft),transparent_60%)] group-hover:opacity-100 transition" />
         <div className="relative flex items-start justify-between">
-          <span className="text-xs font-medium text-[var(--gh-text-muted)]">Total Gempa Signifikan</span>
+          <span className="text-xs font-medium text-[var(--gh-text-muted)]">{t('stats.total')}</span>
           <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-[var(--gh-border)] bg-[var(--gh-surface-raised)] text-[var(--gh-text-muted)] group-hover:text-[var(--gh-accent)] transition">
             <Flame className="h-3.5 w-3.5" strokeWidth={1.75} />
           </span>
         </div>
         <div className="relative mt-3 flex items-baseline gap-2">
           <span className="font-mono text-4xl font-bold tracking-tighter text-[var(--gh-text)]">{allEarthquakes.length}</span>
-          <span className="text-xs font-medium text-[var(--gh-text-muted)]">M ≥ 5.0 dan dirasakan</span>
+          <span className="text-xs font-medium text-[var(--gh-text-muted)]">{t('stats.total_sub')}</span>
         </div>
-        <p className="relative mt-1 text-xs text-[var(--gh-text-subtle)]">Katalog seismik realtime BMKG</p>
+        <p className="relative mt-1 text-xs text-[var(--gh-text-subtle)]">{t('stats.total_desc')}</p>
       </button>
 
       {/* CELL 3 — 4/12 — Gunung Api — semantic top hairline (level cue only), image strip */}
@@ -135,7 +136,7 @@ export const StatsOverview: React.FC<StatsOverviewProps> = ({
         />
         <div className="p-5 pb-3">
           <div className="flex items-center justify-between">
-            <p className="text-xs font-medium text-[var(--gh-text-muted)]">Gunung Api Siaga</p>
+            <p className="text-xs font-medium text-[var(--gh-text-muted)]">{t('stats.volcano')}</p>
             <Mountain className="h-3.5 w-3.5 text-[var(--gh-text-subtle)]" strokeWidth={1.75} />
           </div>
           <div className="mt-3 flex items-baseline gap-2">
@@ -145,9 +146,9 @@ export const StatsOverview: React.FC<StatsOverviewProps> = ({
             >
               {activeAlertVolcanoes.length}
             </span>
-            <span className="text-xs text-[var(--gh-text-muted)]">dari {volcanoes.length} terpantau</span>
+            <span className="text-xs text-[var(--gh-text-muted)]">{t('stats.volcano_of', { n: volcanoes.length })}</span>
           </div>
-          <p className="mt-1 line-clamp-1 text-xs text-[var(--gh-text-subtle)]">Merapi, Semeru, Ibu, Lewotobi</p>
+          <p className="mt-1 line-clamp-1 text-xs text-[var(--gh-text-subtle)]">{t('stats.volcano_names')}</p>
         </div>
         {/* second visual-variation cell */}
         <div className="relative mt-auto h-[72px] overflow-hidden">
@@ -167,7 +168,7 @@ export const StatsOverview: React.FC<StatsOverviewProps> = ({
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(460px_240px_at_100%_100%,var(--gh-accent-soft),transparent_62%)] group-hover:opacity-100 transition" />
         <div className="relative flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-medium text-[var(--gh-text-muted)]">Provinsi Risiko Tinggi</p>
+            <p className="text-xs font-medium text-[var(--gh-text-muted)]">{t('stats.risk')}</p>
             <div className="mt-3 flex items-baseline gap-2.5">
               <span className="font-mono text-4xl font-bold tracking-tighter text-[var(--gh-text)]">{highRiskProvinces.length}</span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--gh-border)] bg-[var(--gh-surface-raised)] px-2 py-0.5 text-xs font-medium text-[var(--gh-text-muted)]">
@@ -175,7 +176,7 @@ export const StatsOverview: React.FC<StatsOverviewProps> = ({
                 IRBI &gt; 130
               </span>
             </div>
-            <p className="mt-1 text-xs text-[var(--gh-text-subtle)]">Indeks Risiko Bencana Indonesia, BNPB InaRISK</p>
+            <p className="mt-1 text-xs text-[var(--gh-text-subtle)]">{t('stats.risk_desc')}</p>
           </div>
           <span className="hidden sm:inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface-raised)] text-[var(--gh-text-subtle)] group-hover:text-[var(--gh-accent)] transition">
             <ShieldAlert className="h-5 w-5" strokeWidth={1.6} />
@@ -189,12 +190,12 @@ export const StatsOverview: React.FC<StatsOverviewProps> = ({
             </span>
           ))}
           {highRiskProvinces.length > 6 && (
-            <span className="px-1 py-1 text-[11px] text-[var(--gh-text-subtle)]">+{highRiskProvinces.length - 6} lagi</span>
+            <span className="px-1 py-1 text-[11px] text-[var(--gh-text-subtle)]">{t('stats.more', { n: highRiskProvinces.length - 6 })}</span>
           )}
         </div>
 
         <span className="relative mt-4 inline-flex items-center gap-1 text-xs font-medium text-[var(--gh-accent)]">
-          Buka mode risiko
+          {t('stats.open_risk')}
           <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" strokeWidth={2} />
         </span>
       </button>

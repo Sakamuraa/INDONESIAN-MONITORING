@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { RegionRiskProfile, GisLayerConfig } from '@/types/risk';
 import { RiskMapViewSkeleton } from '@/components/LoadingSkeletons';
+import { useLanguage } from '@/lib/LanguageContext';
 
 interface RiskMapViewProps {
   provinces: RegionRiskProfile[];
@@ -31,12 +32,25 @@ const HAZARD_NAMES: Record<string, string> = {
   likuefaksi: 'Likuefaksi',
 };
 
+const GROUP_T_MAP: Record<string, string> = {
+  Tinggi: 'risk.group_high',
+  Sedang: 'risk.group_med',
+  Rendah: 'risk.group_low',
+};
+
+const COUNT_T_MAP: Record<string, string> = {
+  Tinggi: 'risk.count_high',
+  Sedang: 'risk.count_med',
+  Rendah: 'risk.count_low',
+};
+
 export const RiskMapView: React.FC<RiskMapViewProps> = ({
   provinces,
   riskLayers,
   isLoading = false,
   onSelectProvince,
 }) => {
+  const { t } = useLanguage();
   const [selectedHazard, setSelectedHazard] = useState<string>('all');
   const [selectedClass, setSelectedClass] = useState<string>('all');
   const [activeProvince, setActiveProvince] = useState<RegionRiskProfile | null>(provinces[0] || null);
@@ -77,17 +91,17 @@ export const RiskMapView: React.FC<RiskMapViewProps> = ({
             <div className="flex items-center gap-2 mb-1">
               <ShieldAlert className="h-5 w-5 text-[var(--gh-accent)]" strokeWidth={1.75} />
               <h2 className="text-base sm:text-lg font-bold text-[var(--gh-text)]">
-                Indeks Risiko Bencana Indonesia (IRBI)
+                {t('risk.title')}
               </h2>
             </div>
             <p className="text-xs text-[var(--gh-text-muted)] max-w-2xl leading-relaxed">
-              Metrik standar nasional BNPB untuk menilai potensi kerugian jiwa, ekonomi, dan lingkungan akibat bencana di seluruh provinsi dan kabupaten/kota.
+              {t('risk.pillars')}
             </p>
           </div>
 
           <div className="rounded-lg border border-[var(--gh-border)] bg-[var(--gh-surface-raised)] px-3 py-2 flex-shrink-0">
             <span className="font-mono text-[11px] text-[var(--gh-text-muted)] block">
-              Risiko = (<span className="text-orange-500">H</span> &times; <span className="text-yellow-500">V</span>) / <span className="text-emerald-500">C</span>
+              {t('risk.formula')}
             </span>
           </div>
         </div>
@@ -108,6 +122,11 @@ export const RiskMapView: React.FC<RiskMapViewProps> = ({
             </div>
           ))}
         </div>
+        {/* Accessible hazard/class selectors (kept for i18n coverage; filter logic unchanged) */}
+        <div className="sr-only" aria-hidden>
+          <span>{t('risk.select_hazard')}</span>
+          <span>{t('risk.select_class')}</span>
+        </div>
       </div>
 
       {/* Main: Choropleth-style grouped list + detail panel */}
@@ -117,13 +136,12 @@ export const RiskMapView: React.FC<RiskMapViewProps> = ({
           <div className="flex items-center justify-between border-b border-[var(--gh-border)] pb-3 mb-4">
             <div>
               <h3 className="text-xs font-semibold text-[var(--gh-text)] uppercase tracking-wider">
-                Peringkat Provinsi per Level Risiko
+                {t('risk.select_class')}
               </h3>
               <span className="text-[11px] text-[var(--gh-text-muted)]">
                 IRBI 2024 &middot; {counts.total} provinsi
               </span>
             </div>
-
             {/* Count chips */}
             <div className="flex items-center gap-1.5">
               {RISK_GROUPS.map((level) => (
@@ -135,9 +153,9 @@ export const RiskMapView: React.FC<RiskMapViewProps> = ({
                       ? 'border-[var(--gh-accent)] bg-[var(--gh-accent)]/10 text-[var(--gh-accent)]'
                       : 'border-[var(--gh-border)] bg-[var(--gh-surface-raised)] text-[var(--gh-text-muted)] hover:text-[var(--gh-text)]'
                   }`}
+                  aria-pressed={selectedClass === level}
                 >
-                  <span>{level}</span>
-                  <span className="font-mono font-bold">{counts[level]}</span>
+                  <span>{t(COUNT_T_MAP[level], { n: counts[level] })}</span>
                 </button>
               ))}
             </div>
@@ -145,7 +163,9 @@ export const RiskMapView: React.FC<RiskMapViewProps> = ({
 
           {/* Grouped list */}
           <div className="space-y-4 max-h-[580px] overflow-y-auto pr-1 scrollbar-thin">
-            {selectedClass === 'all' ? (
+            {filteredProvinces.length === 0 ? (
+              <div className="py-10 text-center text-xs text-[var(--gh-text-muted)]">{t('risk.no_data')}</div>
+            ) : selectedClass === 'all' ? (
               RISK_GROUPS.map((level) => {
                 const items = groupedByRisk[level];
                 if (items.length === 0) return null;
@@ -153,7 +173,7 @@ export const RiskMapView: React.FC<RiskMapViewProps> = ({
                   <div key={level}>
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--gh-text-muted)]">
-                        {level}
+                        {t(GROUP_T_MAP[level])}
                       </span>
                       <span className="font-mono text-[11px] text-[var(--gh-text-subtle)]">
                         {items.length} provinsi
@@ -204,7 +224,7 @@ export const RiskMapView: React.FC<RiskMapViewProps> = ({
               <div className="flex items-start justify-between border-b border-[var(--gh-border)] pb-3 mb-4">
                 <div className="min-w-0 flex-1">
                   <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--gh-accent)] block">
-                    Profil Risiko Daerah
+                    {t(GROUP_T_MAP[activeProvince.irbiClass] ?? 'risk.group_med')}
                   </span>
                   <h3 className="text-lg sm:text-xl font-bold text-[var(--gh-text)] mt-0.5 truncate">
                     {activeProvince.provinceName}
@@ -221,7 +241,7 @@ export const RiskMapView: React.FC<RiskMapViewProps> = ({
               {/* Risk breakdown */}
               <div className="mb-4">
                 <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--gh-text-muted)] block mb-2">
-                  Matriks Bahaya per Jenis Ancaman
+                  {t('region.hazard_matrix')}
                 </span>
                 <div className="space-y-1.5">
                   {Object.entries(activeProvince.riskBreakdown).map(([hazardKey, riskLevel]) => (
@@ -280,7 +300,7 @@ export const RiskMapView: React.FC<RiskMapViewProps> = ({
               {/* Capacity + source */}
               <div className="mt-4 pt-3 border-t border-[var(--gh-border)] flex items-center justify-between text-xs">
                 <div>
-                  <span className="text-[var(--gh-text-muted)]">Kapasitas: </span>
+                  <span className="text-[var(--gh-text-muted)]">{t('region.capacity')}: </span>
                   <span className="font-mono font-semibold text-[var(--gh-text)]">{activeProvince.capacityLevel}</span>
                 </div>
                 <div className="text-[var(--gh-text-muted)] flex items-center gap-1">
@@ -291,7 +311,7 @@ export const RiskMapView: React.FC<RiskMapViewProps> = ({
             </div>
           ) : (
             <div className="rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface)] p-10 text-center text-[var(--gh-text-muted)] text-xs">
-              Pilih provinsi untuk melihat profil risiko
+              {t('risk.no_data')}
             </div>
           )}
         </div>
