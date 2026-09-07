@@ -196,7 +196,7 @@ export const DisasterList: React.FC<DisasterListProps> = ({
       id="disaster-feed-container"
       className="rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface)] p-5 shadow-xs transition-colors duration-150"
     >
-      {/* header — single eyebrow lives here only */}
+      {/* header - single eyebrow lives here only */}
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
@@ -212,7 +212,7 @@ export const DisasterList: React.FC<DisasterListProps> = ({
             </p>
           </div>
 
-          {/* segmented control — replaces 4 equal pills */}
+          {/* segmented control - replaces 4 equal pills */}
           <div className="flex rounded-lg border border-[var(--gh-border)] bg-[var(--gh-bg)] p-1">
             {filterOpts.map((o) => (
               <button
@@ -233,7 +233,7 @@ export const DisasterList: React.FC<DisasterListProps> = ({
           </div>
         </div>
 
-        {/* search + magnitude — restrained second row */}
+        {/* search + magnitude - restrained second row */}
         <div className="flex flex-col gap-2 sm:flex-row">
           <div className="relative flex-1">
             <input
@@ -258,8 +258,8 @@ export const DisasterList: React.FC<DisasterListProps> = ({
             >
               <option value={0}>Semua Magnitudo</option>
               <option value={4}>M ≥ 4.0</option>
-              <option value={5}>M ≥ 5.0 — Signifikan</option>
-              <option value={6}>M ≥ 6.0 — Kuat</option>
+              <option value={5}>M ≥ 5.0 Signifikan</option>
+              <option value={6}>M ≥ 6.0 Kuat</option>
             </select>
           )}
         </div>
@@ -274,7 +274,7 @@ export const DisasterList: React.FC<DisasterListProps> = ({
         </div>
       ) : (
         <div className="mt-6 space-y-6">
-          {/* featured — 1-2 significant quakes as primary tiles */}
+          {/* featured - 1-2 significant quakes as primary tiles */}
           {visibleFeatured.length > 0 && (
             <section>
               <div className="mb-2.5 flex items-center justify-between">
@@ -346,7 +346,7 @@ export const DisasterList: React.FC<DisasterListProps> = ({
             </section>
           )}
 
-          {/* rest — compact 2-col grid */}
+          {/* rest - compact 2-col grid */}
           {visibleRest.length > 0 && (
             <section>
               <div className="mb-2.5 flex items-center justify-between">

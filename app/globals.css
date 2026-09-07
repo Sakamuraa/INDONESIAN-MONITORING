@@ -1,82 +1,92 @@
 @import "tailwindcss";
 @import "maplibre-gl/dist/maplibre-gl.css";
 
-/* GitHub Design Tokens: Dark (Default) & Light */
+/* ——— OnheilAlert tokens — dark trust-first premium — zinc-950 + off-white + amber #f59e0b ——— */
 :root {
-  --gh-bg: #0d1117;
-  --gh-surface: #161b22;
-  --gh-surface-raised: #21262d;
-  --gh-surface-inset: #090d13;
-  --gh-border: #30363d;
-  --gh-border-subtle: #21262d;
-  --gh-border-active: #58a6ff;
-  --gh-text: #f0f6fc;
-  --gh-text-muted: #8b949e;
-  --gh-text-subtle: #6e7681;
-  --gh-accent: #58a6ff;
-  --gh-success: #3fb950;
-  --gh-danger: #f85149;
-  --gh-warning: #d29922;
-  --gh-btn-bg: #21262d;
-  --gh-btn-hover: #30363d;
-  --gh-btn-border: #30363d;
+  --gh-bg: #09090b;
+  --gh-surface: #141416;
+  --gh-surface-raised: #1e1e22;
+  --gh-surface-inset: #0c0c0e;
+  --gh-border: #27272a;
+  --gh-border-subtle: #1f1f23;
+  --gh-border-active: #f59e0b;
+  --gh-text: #fafaf9;
+  --gh-text-muted: #a1a1aa;
+  --gh-text-subtle: #71717a;
+  --gh-accent: #f59e0b;
+  --gh-accent-soft: #f59e0b14;
+  --gh-success: #10b981;
+  --gh-danger: #ef4444;
+  --gh-warning: #f59e0b;
+  --gh-warning-soft: #f59e0b12;
+  --gh-btn-bg: #1e1e22;
+  --gh-btn-hover: #27272a;
+  --gh-btn-border: #27272a;
+  --gh-font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
   --gh-font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   --gh-radius: 12px;
 }
 
 html.dark {
-  --gh-bg: #0d1117;
-  --gh-surface: #161b22;
-  --gh-surface-raised: #21262d;
-  --gh-surface-inset: #090d13;
-  --gh-border: #30363d;
-  --gh-border-subtle: #21262d;
-  --gh-border-active: #58a6ff;
-  --gh-text: #f0f6fc;
-  --gh-text-muted: #8b949e;
-  --gh-text-subtle: #6e7681;
-  --gh-accent: #58a6ff;
-  --gh-success: #3fb950;
-  --gh-danger: #f85149;
-  --gh-warning: #d29922;
-  --gh-btn-bg: #21262d;
-  --gh-btn-hover: #30363d;
-  --gh-btn-border: #30363d;
+  --gh-bg: #09090b;
+  --gh-surface: #141416;
+  --gh-surface-raised: #1e1e22;
+  --gh-surface-inset: #0c0c0e;
+  --gh-border: #27272a;
+  --gh-border-subtle: #1f1f23;
+  --gh-border-active: #f59e0b;
+  --gh-text: #fafaf9;
+  --gh-text-muted: #a1a1aa;
+  --gh-text-subtle: #71717a;
+  --gh-accent: #f59e0b;
+  --gh-success: #10b981;
+  --gh-danger: #ef4444;
+  --gh-warning: #f59e0b;
+  --gh-btn-bg: #1e1e22;
+  --gh-btn-hover: #27272a;
+  --gh-btn-border: #27272a;
   color-scheme: dark;
 }
 
 html.light {
-  --gh-bg: #f6f8fa;
+  --gh-bg: #fafaf9;
   --gh-surface: #ffffff;
-  --gh-surface-raised: #f6f8fa;
-  --gh-surface-inset: #eaeef2;
-  --gh-border: #d0d7de;
-  --gh-border-subtle: #eaeef2;
-  --gh-border-active: #0969da;
-  --gh-text: #1f2328;
-  --gh-text-muted: #57606a;
-  --gh-text-subtle: #8c959f;
-  --gh-accent: #0969da;
-  --gh-success: #1a7f37;
-  --gh-danger: #cf222e;
-  --gh-warning: #9a6700;
-  --gh-btn-bg: #f6f8fa;
-  --gh-btn-hover: #f3f4f6;
-  --gh-btn-border: #d0d7de;
+  --gh-surface-raised: #f4f4f5;
+  --gh-surface-inset: #e4e4e7;
+  --gh-border: #e4e4e7;
+  --gh-border-subtle: #f4f4f5;
+  --gh-border-active: #f59e0b;
+  --gh-text: #18181b;
+  --gh-text-muted: #71717a;
+  --gh-text-subtle: #a1a1aa;
+  --gh-accent: #d97706;
+  --gh-success: #059669;
+  --gh-danger: #dc2626;
+  --gh-warning: #d97706;
+  --gh-btn-bg: #ffffff;
+  --gh-btn-hover: #f4f4f5;
+  --gh-btn-border: #e4e4e7;
   color-scheme: light;
+}
+
+html {
+  scrollbar-gutter: stable;
 }
 
 body {
   background-color: var(--gh-bg);
   color: var(--gh-text);
+  font-family: var(--gh-font-sans);
   transition: background-color 0.15s ease, color 0.15s ease;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 .font-mono {
   font-family: var(--gh-font-mono);
 }
 
-/* MapLibre overrides — token-locked, no decorative grain */
+/* MapLibre overrides — token locked */
 .maplibregl-map {
   font-family: inherit;
 }
@@ -85,7 +95,7 @@ body {
   padding: 0 !important;
   border-radius: var(--gh-radius) !important;
   border: 1px solid var(--gh-border) !important;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.2) !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3) !important;
   overflow: hidden;
   background: var(--gh-surface) !important;
 }
@@ -103,11 +113,11 @@ body {
 }
 
 .maplibregl-ctrl-group {
-  border-radius: 0.5rem !important;
+  border-radius: 12px !important;
   overflow: hidden;
   border: 1px solid var(--gh-border) !important;
   background: var(--gh-surface) !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
 }
 
 .maplibregl-ctrl-group button {
@@ -123,7 +133,7 @@ body {
   background: color-mix(in srgb, var(--gh-surface) 92%, transparent) !important;
   color: var(--gh-text-muted) !important;
   font-size: 10px !important;
-  border-top-left-radius: 6px !important;
+  border-top-left-radius: 8px !important;
   padding: 2px 6px !important;
 }
 
@@ -135,7 +145,6 @@ body {
   outline: none;
 }
 
-/* Pulsing radar animation for latest earthquake epicenter */
 @keyframes epicenter-pulse {
   0% {
     transform: scale(0.95);
@@ -167,7 +176,6 @@ body {
   }
 }
 
-/* Hide all scrollbar tracks & lines completely across all browsers and devices */
 *, *::before, *::after {
   scrollbar-width: none !important;
   -ms-overflow-style: none !important;
@@ -190,4 +198,10 @@ body {
   width: 0 !important;
   height: 0 !important;
   background: transparent !important;
+}
+
+/* focus visible */
+:focus-visible {
+  outline: 2px solid var(--gh-accent);
+  outline-offset: 2px;
 }

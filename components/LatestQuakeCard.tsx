@@ -78,7 +78,7 @@ export const LatestQuakeCard: React.FC<LatestQuakeCardProps> = ({
       id="latest-earthquake-showcase"
       className="relative overflow-hidden rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface)] p-6 shadow-xs transition-colors duration-150"
     >
-      {/* Header */}
+      {/* Header - clean, no Guncangan, sentence discipline */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--gh-border)] pb-4">
         <div className="flex items-center gap-2.5">
           <span className="h-2 w-2 shrink-0 rounded-full bg-red-500" aria-hidden />
@@ -103,13 +103,13 @@ export const LatestQuakeCard: React.FC<LatestQuakeCardProps> = ({
         )}
       </div>
 
-      {/* Editorial asymmetric */}
+      {/* Editorial manifesto - asymmetric 60/40, no 3-equal */}
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-5">
-        {/* Left 60% hero stacked vertically */}
+        {/* Left 60% - hero stacked vertically */}
         <div className="flex flex-col lg:col-span-3">
-          {/* Magnitude */}
+          {/* Magnitude - mono 48-56px premium */}
           <div className="flex items-baseline gap-3">
-            <span className="font-mono text-[42px] font-semibold leading-none tracking-tight text-[var(--gh-text)]">
+            <span className="font-mono text-[52px] font-semibold leading-none tracking-tighter text-[var(--gh-text)] md:text-[56px]">
               M {quake.magnitude !== undefined ? quake.magnitude.toFixed(1) : '--'}
             </span>
             <span
@@ -119,7 +119,7 @@ export const LatestQuakeCard: React.FC<LatestQuakeCardProps> = ({
             </span>
           </div>
 
-          {/* Meta stacked vertically */}
+          {/* Meta stacked vertically, not row */}
           <div className="mt-5 space-y-2.5 border-t border-[var(--gh-border)] pt-5">
             <div className="flex items-center gap-2 text-xs text-[var(--gh-text-muted)]">
               <Clock className="h-3.5 w-3.5 shrink-0 text-[var(--gh-text-subtle)]" strokeWidth={1.75} />
@@ -167,7 +167,7 @@ export const LatestQuakeCard: React.FC<LatestQuakeCardProps> = ({
             )}
           </div>
 
-          {/* Actions */}
+          {/* Actions - gh-accent only on primary */}
           <div className="mt-6 flex flex-wrap gap-2">
             <button
               id="btn-view-latest-quake-on-map"
@@ -188,7 +188,7 @@ export const LatestQuakeCard: React.FC<LatestQuakeCardProps> = ({
           </div>
         </div>
 
-        {/* Right 40% shakemap crowns */}
+        {/* Right 40% - shakemap crowns */}
         <div className="lg:col-span-2">
           <div className="group relative overflow-hidden rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface-raised)]">
             <div className="relative aspect-[4/3] w-full overflow-hidden bg-[var(--gh-bg)]">
