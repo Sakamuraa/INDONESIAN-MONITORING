@@ -51,7 +51,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="relative p-0.5 rounded-xl border border-[var(--gh-border)] bg-[var(--gh-surface-raised)] shadow-xs transition-transform duration-200 group-hover:scale-105">
             <img
               src="/logo.png"
-              alt="Logo Indonesia Disaster Monitor"
+              alt="Logo OnheilAlert"
               className="h-9 w-9 rounded-[10px] object-cover"
               referrerPolicy="no-referrer"
             />
@@ -59,7 +59,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <span className="font-semibold tracking-tight text-[var(--gh-text)] sm:text-base group-hover:text-[var(--gh-accent)] transition-colors">
-                Indonesia Disaster Monitor
+                OnheilAlert
               </span>
               <span className="hidden rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-500 border border-emerald-500/20 sm:inline-block">
                 LIVE

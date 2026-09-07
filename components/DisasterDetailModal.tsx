@@ -61,7 +61,7 @@ export const DisasterDetailModal: React.FC<DisasterDetailModalProps> = ({
   const times = formatMultiTimezones(disaster.occurredAt);
 
   const handleShare = async () => {
-    const text = `Informasi Kebencanaan Resmi: ${disaster.title} di ${disaster.location || 'Indonesia'}. Sumber: ${disaster.source}. Cek selengkapnya di Indonesia Disaster Monitor.`;
+    const text = `Informasi Kebencanaan Resmi: ${disaster.title} di ${disaster.location || 'Indonesia'}. Sumber: ${disaster.source}. Cek selengkapnya di OnheilAlert.`;
     if (navigator.share) {
       try {
         await navigator.share({

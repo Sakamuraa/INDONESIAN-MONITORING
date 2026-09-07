@@ -3,17 +3,17 @@ import './globals.css';
 import { ThemeProvider } from '@/lib/ThemeContext';
 
 export const metadata: Metadata = {
-  title: 'Indonesia Disaster Monitor',
-  description: 'Platform monitoring dan visualisasi data bencana di Indonesia menggunakan data resmi BMKG, BNPB/InaRISK, dan PVMBG/MAGMA Indonesia.',
+  title: 'OnheilAlert',
+  description: 'OnheilAlert by The Onheil Foundation — platform monitoring dan visualisasi data bencana di Indonesia menggunakan data resmi BMKG, BNPB/InaRISK, dan PVMBG/MAGMA Indonesia.',
   openGraph: {
-    title: 'Indonesia Disaster Monitor',
-    description: 'Platform monitoring dan visualisasi data bencana di Indonesia menggunakan data resmi BMKG, BNPB/InaRISK, dan PVMBG/MAGMA Indonesia.',
+    title: 'OnheilAlert',
+    description: 'OnheilAlert by The Onheil Foundation — platform monitoring dan visualisasi data bencana di Indonesia menggunakan data resmi BMKG, BNPB/InaRISK, dan PVMBG/MAGMA Indonesia.',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Indonesia Disaster Monitor',
-    description: 'Platform monitoring dan visualisasi data bencana di Indonesia menggunakan data resmi BMKG, BNPB/InaRISK, dan PVMBG/MAGMA Indonesia.',
+    title: 'OnheilAlert',
+    description: 'OnheilAlert by The Onheil Foundation — platform monitoring dan visualisasi data bencana di Indonesia menggunakan data resmi BMKG, BNPB/InaRISK, dan PVMBG/MAGMA Indonesia.',
   },
 };
 

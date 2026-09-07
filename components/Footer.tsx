@@ -125,7 +125,7 @@ export const Footer: React.FC = () => {
               className="h-5 w-5 rounded-md object-cover ring-1 ring-[var(--gh-border)]"
               referrerPolicy="no-referrer"
             />
-            <span>&copy; {new Date().getFullYear()} Indonesia Disaster Monitor. Hak Cipta Dilindungi Undang-Undang.</span>
+            <span>&copy; {new Date().getFullYear()} OnheilAlert by The Onheil Foundation. Hak Cipta Dilindungi Undang-Undang.</span>
           </div>
           <span className="text-[var(--gh-text-subtle)]">Peta &amp; Koordinat WGS 84 • Zona Waktu Indonesia Barat (WIB)</span>
         </div>
