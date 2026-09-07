@@ -51,6 +51,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   const [showLayerMenu, setShowLayerMenu] = useState(false);
 
   // Map Tile Style definitions (fast and reliable open raster/vector tile servers)
+  // ponytail: Carto now requires API key — tiles without ?key= show WATERMARK. Upgrade: move key to NEXT_PUBLIC_CARTO_KEY env if rotating.
+  const CARTO_KEY = 'cb1_2zll_1_a30b002b7a532fadf3090345';
   const mapStyles = {
     dark: {
       version: 8,
@@ -58,8 +60,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         'carto-dark': {
           type: 'raster',
           tiles: [
-            'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-            'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+            `https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png?key=${CARTO_KEY}`,
+            `https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png?key=${CARTO_KEY}`,
           ],
           tileSize: 256,
           attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://openstreetmap.org">OpenStreetMap</a>',
@@ -81,8 +83,9 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         'carto-voyager': {
           type: 'raster',
           tiles: [
-            'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
-            'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+            `https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=${CARTO_KEY}`,
+            `https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=${CARTO_KEY}`,
+            `https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=${CARTO_KEY}`,
           ],
           tileSize: 256,
           attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://openstreetmap.org">OpenStreetMap</a>',
